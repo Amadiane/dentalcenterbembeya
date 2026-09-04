@@ -6,4 +6,6 @@ export const patientsService = {
   obtenir: (id) => api.get(`${CONFIG.BASE_URL}/api/patients/${id}/`),
   creer: (donnees) => api.post(`${CONFIG.BASE_URL}/api/patients/`, donnees),
   modifier: (id, donnees) => api.patch(`${CONFIG.BASE_URL}/api/patients/${id}/`, donnees),
+  telechargerFiche: (id) =>
+    api.get(`${CONFIG.BASE_URL}/api/patients/${id}/fiche-pdf/`, { responseType: "blob" }),
 };

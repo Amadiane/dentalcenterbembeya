@@ -51,3 +51,53 @@ body {
   padding: 10px 12px;
   font-size: 14px;
 }
+
+/* Conteneur centré réutilisable sur toutes les pages */
+.conteneur-page {
+  max-width: 960px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.carte-moderne {
+  background: var(--couleur-surface);
+  border-radius: 14px;
+  box-shadow: 0 4px 24px rgba(15, 76, 129, 0.06);
+  border: 1px solid var(--couleur-bordure);
+  padding: 28px;
+}
+
+.bouton-secondaire {
+  background: transparent;
+  border: 1px solid var(--couleur-bordure);
+  color: var(--couleur-texte);
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.champ-formulaire textarea {
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.champ-formulaire select {
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.champ-formulaire input:focus,
+.champ-formulaire textarea:focus,
+.champ-formulaire select:focus {
+  outline: none;
+  border-color: var(--couleur-accent);
+  box-shadow: 0 0 0 3px rgba(47, 184, 214, 0.15);
+}

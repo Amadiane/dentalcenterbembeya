@@ -1,0 +1,63 @@
+.entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.titre {
+  font-size: 24px;
+  color: var(--couleur-primaire-fonce);
+  margin: 0;
+}
+
+.boutonNouveau {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
+
+.tableau {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.tableau th {
+  text-align: left;
+  padding: 14px 20px;
+  background: var(--couleur-fond);
+  color: var(--couleur-texte-attenue);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--couleur-bordure);
+}
+
+.tableau td {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--couleur-bordure);
+}
+
+.tableau tr:last-child td {
+  border-bottom: none;
+}
+
+.tableau tr:hover td {
+  background: var(--couleur-fond);
+}
+
+.lienNom {
+  color: var(--couleur-primaire);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.etatVide {
+  text-align: center;
+  padding: 40px;
+  color: var(--couleur-texte-attenue);
+}

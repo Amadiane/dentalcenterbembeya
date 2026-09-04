@@ -5,6 +5,7 @@ import Connexion from "./pages/auth/Connexion";
 import Accueil from "./pages/Accueil";
 import ListePatients from "./pages/patients/ListePatients";
 import FormulairePatient from "./pages/patients/FormulairePatient";
+import FichePatient from "./pages/patients/FichePatient";
 
 export default function App() {
   return (
@@ -21,7 +22,8 @@ export default function App() {
         <Route path="/" element={<Accueil />} />
         <Route path="/patients" element={<ListePatients />} />
         <Route path="/patients/nouveau" element={<FormulairePatient />} />
-        <Route path="/patients/:id" element={<FormulairePatient />} />
+        <Route path="/patients/:id" element={<FichePatient />} />
+        <Route path="/patients/:id/modifier" element={<FormulairePatient />} />
       </Route>
     </Routes>
   );

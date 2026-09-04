@@ -36,6 +36,7 @@ class Patient(models.Model):
 
     date_creation = models.DateTimeField(auto_now_add=True)
     date_modification = models.DateTimeField(auto_now=True)
+    actif = models.BooleanField(default=True, help_text="Un dossier archivé n'apparaît plus dans les listes.")
 
     class Meta:
         ordering = ["nom", "prenom"]

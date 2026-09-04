@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     'corsheaders',
     "utilisateurs",
-    "patients"
+    "patients",
+    "auditlog",
 ]
 
 from datetime import timedelta
@@ -83,9 +84,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "auditlog.middleware.AuditlogMiddleware",
 ]
 
 ROOT_URLCONF = 'Server.urls'
+
+STATIC_URL = "static/"
 
 CORS_ALLOW_CREDENTIALS = True   # ← OBLIGATOIRE
 CORS_ALLOW_ALL_ORIGINS = False  # ← PAS DE TRUE ici sinon erreur
