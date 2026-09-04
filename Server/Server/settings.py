@@ -45,8 +45,30 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    "rest_framework_simplejwt",
     'corsheaders',
     "utilisateurs",
+    "patients"
+]
+
+from datetime import timedelta
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticated",
+    ),
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=8),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+}
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
 ]
 
 AUTH_USER_MODEL = "utilisateurs.Utilisateur"
@@ -68,29 +90,18 @@ ROOT_URLCONF = 'Server.urls'
 CORS_ALLOW_CREDENTIALS = True   # ← OBLIGATOIRE
 CORS_ALLOW_ALL_ORIGINS = False  # ← PAS DE TRUE ici sinon erreur
 # Autoriser le frontend React (dev) à appeler l'API
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",   # port par défaut de Vite
-    "http://127.0.0.1:5173",
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:5173",   # port par défaut de Vite
+#     "http://127.0.0.1:5173",
+# ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    # "https://tekacom.gn",
-    # "https://tekacom.onrender.com",
-    # "https://tekacom.vercel.app",
-    # "https://www.tekacom.gn",
+
 ]
 
-REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
-    ],
-}
+
 
 
 TEMPLATES = [
