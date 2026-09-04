@@ -101,3 +101,7 @@ body {
   border-color: var(--couleur-accent);
   box-shadow: 0 0 0 3px rgba(47, 184, 214, 0.15);
 }
+
+:root {
+  --couleur-succes: #2e9e5b;
+}

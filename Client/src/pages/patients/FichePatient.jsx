@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { Download, Pencil, ArrowLeft } from "lucide-react";
+import { Download, Pencil, ArrowLeft, Archive, History } from "lucide-react";
 import { patientsService } from "../../services/patientsService";
+import { useAuth } from "../../context/AuthContext";
 import styles from "../../theme/pages/patients/FichePatient.module.css";
 
 export default function FichePatient() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { utilisateur } = useAuth();
+  const estAdministrateurGeneral = utilisateur?.role === "administrateur_general";
+
   const [patient, setPatient] = useState(null);
   const [telechargement, setTelechargement] = useState(false);
 
@@ -27,6 +31,12 @@ export default function FichePatient() {
     } finally {
       setTelechargement(false);
     }
+  };
+
+  const archiverPatient = async () => {
+    if (!window.confirm(`Archiver le dossier de ${patient.nom} ${patient.prenom} ? Il n'apparaîtra plus dans la liste, mais restera conservé pour la traçabilité.`)) return;
+    await patientsService.archiver(id);
+    navigate("/patients");
   };
 
   if (!patient) return <p>Chargement...</p>;
@@ -56,6 +66,14 @@ export default function FichePatient() {
           <Link to={`/patients/${id}/modifier`} className={`bouton-secondaire ${styles.actionBouton}`}>
             <Pencil size={16} /> Modifier
           </Link>
+          <Link to={`/patients/${id}/historique`} className={`bouton-secondaire ${styles.actionBouton}`}>
+            <History size={16} /> Historique
+          </Link>
+          {estAdministrateurGeneral && (
+            <button onClick={archiverPatient} className={`bouton-secondaire ${styles.actionBouton}`} style={{ color: "var(--couleur-danger)" }}>
+              <Archive size={16} /> Archiver
+            </button>
+          )}
         </div>
       </div>
 

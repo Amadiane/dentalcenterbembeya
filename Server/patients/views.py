@@ -1,24 +1,27 @@
-from rest_framework import viewsets, permissions
-from .models import Patient
-from .serializers import PatientSerializer
-from .permissions import PeutCreerPatient, EstAdministrateurGeneral
-
-from django.template.loader import render_to_string
-from django.http import HttpResponse
-from rest_framework.decorators import action
-from xhtml2pdf import pisa
-from .permissions import ROLES_ACCES_CLINIQUE
-
-import os
 from django.conf import settings
 from django.contrib.staticfiles import finders
+from django.contrib.contenttypes.models import ContentType
+from django.template.loader import render_to_string
+from django.http import HttpResponse
 
+from rest_framework import viewsets, permissions
+from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter
+from rest_framework.response import Response
+
+from xhtml2pdf import pisa
+from auditlog.models import LogEntry
+from auditlog.context import set_actor
 from utilisateurs.models import Utilisateur
+
+from .models import Patient
+from .serializers import PatientSerializer, EntreeJournalSerializer
+from .permissions import PeutCreerPatient, EstAdministrateurGeneral, ROLES_ACCES_CLINIQUE
 
 ROLES_MEDECINS = {Utilisateur.Role.MEDECIN_CHEF, Utilisateur.Role.MEDECIN}
 
+
 def link_callback(uri, rel):
-    """Traduit les chemins {% static %} du template en chemins réels sur le disque, pour xhtml2pdf."""
     if uri.startswith(settings.STATIC_URL):
         chemin = uri.replace(settings.STATIC_URL, "")
         resultat = finders.find(chemin)
@@ -30,6 +33,8 @@ def link_callback(uri, rel):
 class PatientViewSet(viewsets.ModelViewSet):
     serializer_class = PatientSerializer
     permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [SearchFilter]
+    search_fields = ["nom", "prenom", "numero_dossier", "telephone"]
 
     def get_queryset(self):
         return Patient.objects.filter(actif=True)
@@ -41,22 +46,22 @@ class PatientViewSet(viewsets.ModelViewSet):
             return [permissions.IsAuthenticated(), EstAdministrateurGeneral()]
         return [permissions.IsAuthenticated()]
 
-    def perform_destroy(self, instance):
-        """Archivage plutôt que suppression réelle — traçabilité médicale obligatoire."""
-        instance.actif = False
-        instance.save(update_fields=["actif"])
-
     def perform_create(self, serializer):
-        patient = serializer.save()
-        self._assigner_referent_si_absent(patient)
+        with set_actor(self.request.user):
+            patient = serializer.save()
+            self._assigner_referent_si_absent(patient)
 
     def perform_update(self, serializer):
-        patient = serializer.save()
-        self._assigner_referent_si_absent(patient)
+        with set_actor(self.request.user):
+            patient = serializer.save()
+            self._assigner_referent_si_absent(patient)
+
+    def perform_destroy(self, instance):
+        with set_actor(self.request.user):
+            instance.actif = False
+            instance.save(update_fields=["actif"])
 
     def _assigner_referent_si_absent(self, patient):
-        """Le premier médecin (chef ou non) qui crée/modifie un dossier en devient le référent,
-        s'il n'y en a pas déjà un. Aucune action pour les autres rôles."""
         if patient.praticien_referent is None and self.request.user.role in ROLES_MEDECINS:
             patient.praticien_referent = self.request.user
             patient.save(update_fields=["praticien_referent"])
@@ -72,3 +77,12 @@ class PatientViewSet(viewsets.ModelViewSet):
         response["Content-Disposition"] = f'attachment; filename="{patient.numero_dossier}.pdf"'
         pisa.CreatePDF(html, dest=response, link_callback=link_callback)
         return response
+
+    @action(detail=True, methods=["get"], url_path="historique")
+    def historique(self, request, pk=None):
+        patient = self.get_object()
+        content_type = ContentType.objects.get_for_model(Patient)
+        entrees = LogEntry.objects.filter(
+            content_type=content_type, object_pk=str(patient.pk)
+        ).select_related("actor").order_by("-timestamp")
+        return Response(EntreeJournalSerializer(entrees, many=True).data)

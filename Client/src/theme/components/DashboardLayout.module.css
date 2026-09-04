@@ -13,11 +13,24 @@
   flex-shrink: 0;
 }
 
+.enteteBarre {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 36px;
+}
+
 .nomEntreprise {
   font-weight: 700;
   font-size: 16px;
-  margin-bottom: 36px;
   padding: 0 6px;
+}
+
+.boutonFermer {
+  display: none;
+  background: transparent;
+  border: none;
+  color: #ffffff;
 }
 
 .navigation {
@@ -77,8 +90,81 @@
   opacity: 1;
 }
 
+.voile {
+  display: none;
+}
+
+.zoneDroite {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.enteteMobile {
+  display: none;
+}
+
 .zonePrincipale {
   flex: 1;
   padding: 44px 40px;
   overflow-x: auto;
+}
+
+/* --- Sidebar en tiroir sous 900px de large --- */
+@media (max-width: 900px) {
+  .barre {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    height: 100vh;
+    z-index: 50;
+    width: 260px;
+    transition: left 0.2s ease;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+  }
+
+  .barreOuverte {
+    left: 0;
+  }
+
+  .boutonFermer {
+    display: block;
+  }
+
+  .voile {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 20, 30, 0.45);
+    z-index: 40;
+  }
+
+  .enteteMobile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: var(--couleur-surface);
+    border-bottom: 1px solid var(--couleur-bordure);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+
+  .boutonHamburger {
+    background: transparent;
+    border: none;
+    color: var(--couleur-primaire);
+  }
+
+  .titreMobile {
+    font-weight: 700;
+    color: var(--couleur-primaire-fonce);
+    font-size: 15px;
+  }
+
+  .zonePrincipale {
+    padding: 20px 16px;
+  }
 }

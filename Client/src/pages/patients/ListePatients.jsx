@@ -1,18 +1,24 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { patientsService } from "../../services/patientsService";
 import styles from "../../theme/pages/patients/ListePatients.module.css";
 
 export default function ListePatients() {
   const [patients, setPatients] = useState([]);
+  const [recherche, setRecherche] = useState("");
   const [chargement, setChargement] = useState(true);
 
   useEffect(() => {
-    patientsService.lister()
-      .then(({ data }) => setPatients(data.results || data))
-      .finally(() => setChargement(false));
-  }, []);
+    const delai = setTimeout(() => {
+      setChargement(true);
+      patientsService
+        .lister({ search: recherche || undefined })
+        .then(({ data }) => setPatients(data.results || data))
+        .finally(() => setChargement(false));
+    }, 300);
+    return () => clearTimeout(delai);
+  }, [recherche]);
 
   return (
     <div className="conteneur-page">
@@ -23,9 +29,21 @@ export default function ListePatients() {
         </Link>
       </div>
 
-      <div className="carte-moderne" style={{ padding: 0 }}>
+      <div className={styles.barreRecherche}>
+        <Search size={16} color="var(--couleur-texte-attenue)" />
+        <input
+          type="text"
+          placeholder="Rechercher par nom, téléphone ou numéro de dossier..."
+          value={recherche}
+          onChange={(e) => setRecherche(e.target.value)}
+        />
+      </div>
+
+        <div className="carte-moderne" style={{ padding: 0, overflowX: "auto" }}>
         {chargement && <p className={styles.etatVide}>Chargement...</p>}
-        {!chargement && patients.length === 0 && <p className={styles.etatVide}>Aucun patient enregistré.</p>}
+        {!chargement && patients.length === 0 && (
+          <p className={styles.etatVide}>Aucun patient trouvé.</p>
+        )}
 
         {!chargement && patients.length > 0 && (
           <table className={styles.tableau}>
@@ -41,7 +59,11 @@ export default function ListePatients() {
               {patients.map((p) => (
                 <tr key={p.id}>
                   <td>{p.numero_dossier}</td>
-                  <td><Link to={`/patients/${p.id}`} className={styles.lienNom}>{p.nom}</Link></td>
+                  <td>
+                    <Link to={`/patients/${p.id}`} className={styles.lienNom}>
+                      {p.nom}
+                    </Link>
+                  </td>
                   <td>{p.prenom}</td>
                   <td>{p.telephone || "—"}</td>
                 </tr>

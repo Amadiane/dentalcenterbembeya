@@ -20,10 +20,14 @@ export default function FormulairePatient() {
 
   const [valeurs, setValeurs] = useState(VIDE);
   const [chargement, setChargement] = useState(modeEdition);
+  const [erreur, setErreur] = useState("");
 
   useEffect(() => {
     if (!modeEdition) return;
-    patientsService.obtenir(id).then(({ data }) => setValeurs({ ...VIDE, ...data })).finally(() => setChargement(false));
+    patientsService
+      .obtenir(id)
+      .then(({ data }) => setValeurs({ ...VIDE, ...data }))
+      .finally(() => setChargement(false));
   }, [id, modeEdition]);
 
   const champ = (nom) => ({
@@ -33,12 +37,17 @@ export default function FormulairePatient() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (modeEdition) {
-      await patientsService.modifier(id, valeurs);
-      navigate(`/patients/${id}`);
-    } else {
-      const { data } = await patientsService.creer(valeurs);
-      navigate(`/patients/${data.id}`);
+    setErreur("");
+    try {
+      if (modeEdition) {
+        await patientsService.modifier(id, valeurs);
+        navigate(`/patients/${id}`);
+      } else {
+        const { data } = await patientsService.creer(valeurs);
+        navigate(`/patients/${data.id}`);
+      }
+    } catch (err) {
+      setErreur("Erreur lors de l'enregistrement. Vérifiez que le nom et le prénom sont bien renseignés.");
     }
   };
 
@@ -47,6 +56,12 @@ export default function FormulairePatient() {
   return (
     <div className="conteneur-page" style={{ maxWidth: 700 }}>
       <h1 className={styles.titre}>{modeEdition ? "Modifier le patient" : "Nouveau patient"}</h1>
+
+      {erreur && (
+        <div style={{ background: "#fdecec", color: "var(--couleur-danger)", border: "1px solid #f5c6c6", borderRadius: 8, padding: "10px 12px", fontSize: 13, marginBottom: 16 }}>
+          {erreur}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
         <div className={`carte-moderne ${styles.section}`}>

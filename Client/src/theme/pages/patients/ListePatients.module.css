@@ -61,3 +61,23 @@
   padding: 40px;
   color: var(--couleur-texte-attenue);
 }
+
+.barreRecherche {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--couleur-surface);
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  max-width: 420px;
+}
+
+.barreRecherche input {
+  border: none;
+  outline: none;
+  font-size: 14px;
+  flex: 1;
+  font-family: inherit;
+}
