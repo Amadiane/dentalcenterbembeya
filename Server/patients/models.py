@@ -8,7 +8,6 @@ class Patient(models.Model):
         HOMME = "H", "Homme"
         FEMME = "F", "Femme"
 
-    # Identification -----------------------------------------------------
     numero_dossier = models.CharField(max_length=20, unique=True, blank=True)
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
@@ -17,26 +16,24 @@ class Patient(models.Model):
     profession = models.CharField(max_length=150, blank=True)
     adresse = models.CharField(max_length=255, blank=True)
 
-    # Coordonnées -----------------------------------------------------
     telephone = models.CharField(max_length=30, blank=True)
     email = models.EmailField(blank=True)
 
-    # Consultation -----------------------------------------------------
     motif = models.TextField(blank=True, help_text="Motif de la consultation.")
-    soins = models.TextField(blank=True, help_text="Soins réalisés ou prévus.")
-
-    # Antécédents médicaux -----------------------------------------------
+    diagnostic = models.TextField(blank=True, help_text="Diagnostic posé par le praticien.")
     allergies = models.TextField(blank=True)
     antecedents_medicaux = models.TextField(blank=True)
+    soins = models.TextField(blank=True, help_text="Soins réalisés ou prévus.")
 
     praticien_referent = models.ForeignKey(
         Utilisateur, on_delete=models.SET_NULL, null=True, blank=True,
         related_name="patients_suivis",
     )
 
+    actif = models.BooleanField(default=True, help_text="Un dossier archivé n'apparaît plus dans les listes.")
+
     date_creation = models.DateTimeField(auto_now_add=True)
     date_modification = models.DateTimeField(auto_now=True)
-    actif = models.BooleanField(default=True, help_text="Un dossier archivé n'apparaît plus dans les listes.")
 
     class Meta:
         ordering = ["nom", "prenom"]

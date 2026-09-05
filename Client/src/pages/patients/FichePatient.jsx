@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { Download, Pencil, ArrowLeft, Archive, History } from "lucide-react";
+import { Download, Printer, Pencil, ArrowLeft, Archive, History } from "lucide-react";
 import { patientsService } from "../../services/patientsService";
 import { useAuth } from "../../context/AuthContext";
 import styles from "../../theme/pages/patients/FichePatient.module.css";
@@ -13,6 +13,7 @@ export default function FichePatient() {
 
   const [patient, setPatient] = useState(null);
   const [telechargement, setTelechargement] = useState(false);
+  const [impression, setImpression] = useState(false);
 
   useEffect(() => {
     patientsService.obtenir(id).then(({ data }) => setPatient(data));
@@ -30,6 +31,17 @@ export default function FichePatient() {
       window.URL.revokeObjectURL(url);
     } finally {
       setTelechargement(false);
+    }
+  };
+
+  const imprimer = async () => {
+    setImpression(true);
+    try {
+      const { data } = await patientsService.telechargerFiche(id);
+      const url = window.URL.createObjectURL(new Blob([data], { type: "application/pdf" }));
+      window.open(url, "_blank");
+    } finally {
+      setImpression(false);
     }
   };
 
@@ -60,6 +72,9 @@ export default function FichePatient() {
           <p className={styles.numeroDossier}>{patient.numero_dossier}</p>
         </div>
         <div className={styles.actions}>
+          <button onClick={imprimer} className={`bouton-secondaire ${styles.actionBouton}`} disabled={impression}>
+            <Printer size={16} /> {impression ? "Génération..." : "Imprimer"}
+          </button>
           <button onClick={telecharger} className={`bouton-primaire ${styles.actionBouton}`} disabled={telechargement}>
             <Download size={16} /> {telechargement ? "Génération..." : "Télécharger"}
           </button>
@@ -86,13 +101,16 @@ export default function FichePatient() {
         {ligne("Téléphone", patient.telephone)}
         {ligne("E-mail", patient.email)}
 
-        {"motif" in patient && (
+        <div className={styles.sectionTitre}>Motif de consultation</div>
+        {ligne("Motif", patient.motif)}
+
+        {"diagnostic" in patient && (
           <>
             <div className={styles.sectionTitre}>Informations cliniques</div>
-            {ligne("Motif de consultation", patient.motif)}
-            {ligne("Soins", patient.soins)}
+            {ligne("Diagnostic", patient.diagnostic)}
             {ligne("Allergies", patient.allergies)}
             {ligne("Antécédents médicaux", patient.antecedents_medicaux)}
+            {ligne("Soins", patient.soins)}
           </>
         )}
       </div>

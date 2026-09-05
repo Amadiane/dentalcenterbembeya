@@ -1,6 +1,13 @@
+import json
 from rest_framework import serializers
+from auditlog.models import LogEntry
 from .models import Patient
-from .permissions import CHAMPS_CLINIQUES, CHAMPS_ADMINISTRATIFS, ROLES_ACCES_CLINIQUE, ROLES_ECRITURE_ADMINISTRATIF
+from .permissions import (
+    CHAMPS_CLINIQUES_RESTREINTS,
+    CHAMPS_ADMINISTRATIFS,
+    ROLES_ACCES_CLINIQUE,
+    ROLES_ECRITURE_ADMINISTRATIF,
+)
 
 
 class PatientSerializer(serializers.ModelSerializer):
@@ -10,32 +17,25 @@ class PatientSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "numero_dossier", "date_creation", "date_modification", "actif"]
 
     def to_representation(self, instance):
-        """Masque les champs cliniques pour les rôles qui n'y ont pas accès (ex. réception)."""
         data = super().to_representation(instance)
         request = self.context.get("request")
         if request and request.user.role not in ROLES_ACCES_CLINIQUE:
-            for champ in CHAMPS_CLINIQUES:
+            for champ in CHAMPS_CLINIQUES_RESTREINTS:
                 data.pop(champ, None)
         return data
 
     def validate(self, attrs):
-        """Ignore silencieusement toute tentative de modifier un champ hors périmètre du rôle."""
         request = self.context.get("request")
         if request:
             role = request.user.role
             if role not in ROLES_ACCES_CLINIQUE:
-                for champ in CHAMPS_CLINIQUES:
+                for champ in CHAMPS_CLINIQUES_RESTREINTS:
                     attrs.pop(champ, None)
             if role not in ROLES_ECRITURE_ADMINISTRATIF:
                 for champ in CHAMPS_ADMINISTRATIFS:
                     attrs.pop(champ, None)
         return attrs
 
-from auditlog.models import LogEntry
-
-
-import json
-from auditlog.models import LogEntry
 
 LABELS_CHAMPS = {
     "nom": "Nom",
@@ -47,6 +47,7 @@ LABELS_CHAMPS = {
     "telephone": "Téléphone",
     "email": "E-mail",
     "motif": "Motif de consultation",
+    "diagnostic": "Diagnostic",
     "soins": "Soins",
     "allergies": "Allergies",
     "antecedents_medicaux": "Antécédents médicaux",

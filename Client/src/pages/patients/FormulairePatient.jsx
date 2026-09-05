@@ -6,7 +6,8 @@ import styles from "../../theme/pages/patients/FormulairePatient.module.css";
 
 const VIDE = {
   nom: "", prenom: "", age: "", sexe: "", profession: "", adresse: "",
-  telephone: "", email: "", motif: "", soins: "", allergies: "", antecedents_medicaux: "",
+  telephone: "", email: "", motif: "", diagnostic: "", allergies: "",
+  antecedents_medicaux: "", soins: "",
 };
 
 const ROLES_ACCES_CLINIQUE = ["administrateur_general", "medecin_chef", "medecin", "infirmier", "hygieniste"];
@@ -100,18 +101,20 @@ export default function FormulairePatient() {
               <input {...champ("adresse")} />
             </div>
           </div>
+
+          {/* Motif : accessible à la réceptionniste, pas seulement au personnel clinique */}
+          <div className="champ-formulaire">
+            <label>Motif de consultation</label>
+            <textarea rows={3} {...champ("motif")} />
+          </div>
         </div>
 
         {accesClinique && (
           <div className={`carte-moderne ${styles.section}`}>
             <div className={styles.sectionTitre}>Informations cliniques</div>
             <div className="champ-formulaire">
-              <label>Motif de consultation</label>
-              <textarea rows={4} {...champ("motif")} />
-            </div>
-            <div className="champ-formulaire">
-              <label>Soins</label>
-              <textarea rows={5} {...champ("soins")} />
+              <label>Diagnostic</label>
+              <textarea rows={4} {...champ("diagnostic")} />
             </div>
             <div className="champ-formulaire">
               <label>Allergies</label>
@@ -120,6 +123,10 @@ export default function FormulairePatient() {
             <div className="champ-formulaire">
               <label>Antécédents médicaux</label>
               <textarea rows={5} {...champ("antecedents_medicaux")} />
+            </div>
+            <div className="champ-formulaire">
+              <label>Soins</label>
+              <textarea rows={5} {...champ("soins")} />
             </div>
           </div>
         )}

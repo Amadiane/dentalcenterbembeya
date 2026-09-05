@@ -37,12 +37,19 @@ class PatientViewSet(viewsets.ModelViewSet):
     search_fields = ["nom", "prenom", "numero_dossier", "telephone"]
 
     def get_queryset(self):
-        return Patient.objects.filter(actif=True)
+        queryset = Patient.objects.filter(actif=True)
+        annee = self.request.query_params.get("annee")
+        mois = self.request.query_params.get("mois")
+        if annee:
+            queryset = queryset.filter(date_creation__year=annee)
+        if mois:
+            queryset = queryset.filter(date_creation__month=mois)
+        return queryset
 
     def get_permissions(self):
         if self.action == "create":
             return [permissions.IsAuthenticated(), PeutCreerPatient()]
-        if self.action == "destroy":
+        if self.action in ["destroy", "archives", "restaurer", "archiver_periode"]:
             return [permissions.IsAuthenticated(), EstAdministrateurGeneral()]
         return [permissions.IsAuthenticated()]
 
@@ -74,7 +81,7 @@ class PatientViewSet(viewsets.ModelViewSet):
             "acces_clinique": request.user.role in ROLES_ACCES_CLINIQUE,
         })
         response = HttpResponse(content_type="application/pdf")
-        response["Content-Disposition"] = f'attachment; filename="{patient.numero_dossier}.pdf"'
+        response["Content-Disposition"] = f'inline; filename="{patient.numero_dossier}.pdf"'
         pisa.CreatePDF(html, dest=response, link_callback=link_callback)
         return response
 
@@ -86,18 +93,43 @@ class PatientViewSet(viewsets.ModelViewSet):
             content_type=content_type, object_pk=str(patient.pk)
         ).select_related("actor").order_by("-timestamp")
         return Response(EntreeJournalSerializer(entrees, many=True).data)
-    
-    @action(detail=False, methods=["get"], url_path="archives", permission_classes=[permissions.IsAuthenticated, EstAdministrateurGeneral])
+
+    @action(detail=False, methods=["get"], url_path="archives")
     def archives(self, request):
-        """GET /api/patients/archives/ — liste des dossiers archivés (admin général uniquement)."""
-        patients = Patient.objects.filter(actif=False).order_by("nom", "prenom")
+        patients = Patient.objects.filter(actif=False)
+        annee = request.query_params.get("annee")
+        mois = request.query_params.get("mois")
+        if annee:
+            patients = patients.filter(date_creation__year=annee)
+        if mois:
+            patients = patients.filter(date_creation__month=mois)
+        patients = patients.order_by("nom", "prenom")
         return Response(PatientSerializer(patients, many=True, context={"request": request}).data)
 
-    @action(detail=True, methods=["post"], url_path="restaurer", permission_classes=[permissions.IsAuthenticated, EstAdministrateurGeneral])
+    @action(detail=True, methods=["post"], url_path="restaurer")
     def restaurer(self, request, pk=None):
-        """POST /api/patients/{id}/restaurer/ — sort un dossier de l'archive."""
         patient = Patient.objects.get(pk=pk, actif=False)
         with set_actor(request.user):
             patient.actif = True
             patient.save(update_fields=["actif"])
         return Response(PatientSerializer(patient, context={"request": request}).data)
+
+    @action(detail=False, methods=["post"], url_path="archiver-periode")
+    def archiver_periode(self, request):
+        """Archive en masse tous les dossiers actifs d'une année (et éventuellement d'un mois donné)."""
+        annee = request.data.get("annee")
+        mois = request.data.get("mois")
+        if not annee:
+            return Response({"detail": "L'année est obligatoire."}, status=400)
+
+        queryset = Patient.objects.filter(actif=True, date_creation__year=annee)
+        if mois:
+            queryset = queryset.filter(date_creation__month=mois)
+
+        nombre = queryset.count()
+        with set_actor(request.user):
+            for patient in queryset:
+                patient.actif = False
+                patient.save(update_fields=["actif"])
+
+        return Response({"nombre_archives": nombre})

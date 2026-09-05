@@ -94,14 +94,21 @@
     </table>
   </div>
 
+  <div class="section">
+    <div class="section-titre">MOTIF DE CONSULTATION</div>
+    <table class="champs">
+      <tr><td class="valeur">{{ patient.motif|default:"—" }}</td></tr>
+    </table>
+  </div>
+
   {% if acces_clinique %}
   <div class="section">
     <div class="section-titre section-titre-clinique">INFORMATIONS CLINIQUES</div>
     <table class="champs">
-      <tr><td class="label">Motif de consultation</td><td class="valeur">{{ patient.motif|default:"—" }}</td></tr>
-      <tr><td class="label">Soins</td><td class="valeur">{{ patient.soins|default:"—" }}</td></tr>
+      <tr><td class="label">Diagnostic</td><td class="valeur">{{ patient.diagnostic|default:"—" }}</td></tr>
       <tr><td class="label">Allergies</td><td class="valeur">{{ patient.allergies|default:"—" }}</td></tr>
       <tr><td class="label">Antécédents médicaux</td><td class="valeur">{{ patient.antecedents_medicaux|default:"—" }}</td></tr>
+      <tr><td class="label">Soins</td><td class="valeur">{{ patient.soins|default:"—" }}</td></tr>
     </table>
   </div>
   {% endif %}
