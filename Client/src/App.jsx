@@ -9,8 +9,8 @@ import FormulairePatient from "./pages/patients/FormulairePatient";
 import FichePatient from "./pages/patients/FichePatient";
 import HistoriquePatient from "./pages/patients/HistoriquePatient";
 import PatientsArchives from "./pages/patients/PatientsArchives";
-// import AgendaRendezVous from "./pages/rendezvous/AgendaRendezVous";
-// import FormulaireRendezVous from "./pages/rendezvous/FormulaireRendezVous";
+import AgendaRendezVous from "./pages/rendezvous/AgendaRendezVous";
+
 
 export default function App() {
   return (
@@ -32,6 +32,7 @@ export default function App() {
         <Route path="/patients/:id" element={<FichePatient />} />
         <Route path="/patients/:id/modifier" element={<FormulairePatient />} />
         <Route path="/patients/:id/historique" element={<HistoriquePatient />} />
+        <Route path="/rendez-vous" element={<AgendaRendezVous />} />
 
         {/* <Route path="/rendez-vous" element={<AgendaRendezVous />} />
         <Route path="/rendez-vous/nouveau" element={<FormulaireRendezVous />} />
