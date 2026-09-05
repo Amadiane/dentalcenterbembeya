@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { Download, Printer, Pencil, ArrowLeft, Archive, History } from "lucide-react";
+import { Download, Printer, Pencil, ArrowLeft, Archive, History, CalendarDays } from "lucide-react";
 import { patientsService } from "../../services/patientsService";
+import { rendezVousService } from "../../services/rendezVousService";
 import { useAuth } from "../../context/AuthContext";
 import styles from "../../theme/pages/patients/FichePatient.module.css";
 
@@ -14,9 +15,15 @@ export default function FichePatient() {
   const [patient, setPatient] = useState(null);
   const [telechargement, setTelechargement] = useState(false);
   const [impression, setImpression] = useState(false);
+  const [rendezVous, setRendezVous] = useState([]);
 
   useEffect(() => {
     patientsService.obtenir(id).then(({ data }) => setPatient(data));
+  }, [id]);
+
+  useEffect(() => {
+    rendezVousService.lister({ patient: id, inclure_annules: true })
+      .then(({ data }) => setRendezVous(data.results || data));
   }, [id]);
 
   const telecharger = async () => {
@@ -57,6 +64,45 @@ export default function FichePatient() {
     <div className={styles.ligne}>
       <div className={styles.label}>{label}</div>
       <div>{valeur || "—"}</div>
+    </div>
+  );
+
+  const aujourdHui = new Date().toISOString().slice(0, 10);
+  const rdvAvenir = rendezVous
+    .filter((r) => r.date >= aujourdHui && r.statut !== "annule")
+    .sort((a, b) => a.date.localeCompare(b.date) || a.heure_debut.localeCompare(b.heure_debut));
+  const rdvPasses = rendezVous
+    .filter((r) => r.date < aujourdHui || r.statut === "annule")
+    .sort((a, b) => b.date.localeCompare(a.date) || b.heure_debut.localeCompare(a.heure_debut));
+
+  const COULEURS_STATUT = {
+    planifie: { bg: "#e5eef7", texte: "#0f4c81" },
+    confirme: { bg: "#dcf5f5", texte: "#1b8fab" },
+    termine: { bg: "#eef0f2", texte: "#5b6b7c" },
+    absent: { bg: "#fdf1de", texte: "#b5720f" },
+    annule: { bg: "#fdecec", texte: "#d94f4f" },
+  };
+
+  const badgeRdv = (rdv) => {
+    const c = COULEURS_STATUT[rdv.statut] || COULEURS_STATUT.planifie;
+    return (
+      <span style={{ background: c.bg, color: c.texte, fontSize: 11, fontWeight: 600, padding: "3px 9px", borderRadius: 20 }}>
+        {rdv.statut_affiche}
+      </span>
+    );
+  };
+
+  const ligneRdv = (rdv) => (
+    <div key={rdv.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid var(--couleur-bordure)" }}>
+      <div>
+        <div style={{ fontSize: 13, fontWeight: 600 }}>
+          {new Date(rdv.date).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })} à {rdv.heure_debut.slice(0, 5)}
+        </div>
+        <div style={{ fontSize: 12, color: "var(--couleur-texte-attenue)" }}>
+          {rdv.praticien_nom}{rdv.motif ? ` — ${rdv.motif}` : ""}
+        </div>
+      </div>
+      {badgeRdv(rdv)}
     </div>
   );
 
@@ -111,6 +157,36 @@ export default function FichePatient() {
             {ligne("Allergies", patient.allergies)}
             {ligne("Antécédents médicaux", patient.antecedents_medicaux)}
             {ligne("Soins", patient.soins)}
+          </>
+        )}
+      </div>
+
+      <div className="carte-moderne" style={{ marginTop: 20 }}>
+        <div className={styles.sectionTitre} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <CalendarDays size={16} /> Rendez-vous ({rendezVous.length})
+        </div>
+
+        {rendezVous.length === 0 && (
+          <p style={{ color: "var(--couleur-texte-attenue)", fontSize: 13, padding: "10px 0" }}>
+            Aucun rendez-vous enregistré pour ce patient.
+          </p>
+        )}
+
+        {rdvAvenir.length > 0 && (
+          <>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--couleur-accent-fonce)", marginTop: 12, marginBottom: 4, textTransform: "uppercase" }}>
+              À venir
+            </div>
+            {rdvAvenir.map(ligneRdv)}
+          </>
+        )}
+
+        {rdvPasses.length > 0 && (
+          <>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--couleur-texte-attenue)", marginTop: 16, marginBottom: 4, textTransform: "uppercase" }}>
+              Historique
+            </div>
+            {rdvPasses.map(ligneRdv)}
           </>
         )}
       </div>

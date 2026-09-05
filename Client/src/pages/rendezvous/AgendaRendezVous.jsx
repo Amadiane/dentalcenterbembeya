@@ -6,6 +6,7 @@ import { useAuth } from "../../context/AuthContext";
 import styles from "../../theme/pages/rendezvous/AgendaRendezVous.module.css";
 
 const ROLES_GESTION = ["administrateur_general", "accueil_receptionniste", "medecin_chef", "medecin"];
+const STATUTS_MODIFIABLES_DATE = ["planifie", "confirme"];
 
 const BADGES = {
   planifie: styles.badgePlanifie,
@@ -24,6 +25,7 @@ export default function AgendaRendezVous() {
   const [date, setDate] = useState(aujourdHui());
   const [rendezVous, setRendezVous] = useState([]);
   const [chargement, setChargement] = useState(true);
+  const estAdminGeneral = utilisateur?.role === "administrateur_general";
 
   const charger = useCallback(() => {
     setChargement(true);
@@ -76,23 +78,46 @@ export default function AgendaRendezVous() {
               </tr>
             </thead>
             <tbody>
-              {rendezVous.map((rdv) => (
-                <tr key={rdv.id}>
-                  <td>{rdv.heure_debut.slice(0, 5)} – {rdv.heure_fin}</td>
-                  <td>{rdv.patient_nom} {rdv.patient_prenom}</td>
-                  <td>{rdv.praticien_nom}</td>
-                  <td>{rdv.motif || "—"}</td>
-                  <td><span className={`${styles.badge} ${BADGES[rdv.statut]}`}>{rdv.statut_affiche}</span></td>
-                  {peutGerer && (
-                    <td>
-                      <div style={{ display: "flex", gap: 8 }}>
-                        <Link to={`/rendez-vous/${rdv.id}/modifier`} style={{ color: "var(--couleur-primaire)", fontWeight: 600, fontSize: 13, textDecoration: "none" }}>Modifier</Link>
-                        <button onClick={() => annuler(rdv)} style={{ background: "transparent", border: "none", color: "var(--couleur-danger)", fontSize: 13, cursor: "pointer", padding: 0 }}>Annuler</button>
-                      </div>
-                    </td>
-                  )}
-                </tr>
-              ))}
+              {rendezVous.map((rdv) => {
+                const rdvModifiableDate = STATUTS_MODIFIABLES_DATE.includes(rdv.statut);
+                return (
+                  <tr key={rdv.id}>
+                    <td>{rdv.heure_debut.slice(0, 5)} – {rdv.heure_fin}</td>
+                    <td>{rdv.patient_nom} {rdv.patient_prenom}</td>
+                    <td>{rdv.praticien_nom}</td>
+                    <td>{rdv.motif || "—"}</td>
+                    <td><span className={`${styles.badge} ${BADGES[rdv.statut]}`}>{rdv.statut_affiche}</span></td>
+                                        {peutGerer && (
+                      <td>
+                        <div style={{ display: "flex", gap: 8 }}>
+                          {rdvModifiableDate || estAdminGeneral ? (
+                            <Link
+                              to={`/rendez-vous/${rdv.id}/modifier`}
+                              style={{ color: "var(--couleur-primaire)", fontWeight: 600, fontSize: 13, textDecoration: "none" }}
+                            >
+                              {rdvModifiableDate ? "Reprogrammer" : "Modifier"}
+                            </Link>
+                          ) : (
+                            <Link
+                              to={`/rendez-vous/${rdv.id}`}
+                              style={{ color: "var(--couleur-texte-attenue)", fontWeight: 600, fontSize: 13, textDecoration: "none" }}
+                            >
+                              Voir
+                            </Link>
+                          )}
+                          {(rdvModifiableDate || estAdminGeneral) && (
+                            <button
+                              onClick={() => annuler(rdv)}
+                              style={{ background: "transparent", border: "none", color: "var(--couleur-danger)", fontSize: 13, cursor: "pointer", padding: 0 }}
+                            >
+                              Annuler
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    )}                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}

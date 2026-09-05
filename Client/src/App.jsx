@@ -11,6 +11,7 @@ import HistoriquePatient from "./pages/patients/HistoriquePatient";
 import PatientsArchives from "./pages/patients/PatientsArchives";
 import AgendaRendezVous from "./pages/rendezvous/AgendaRendezVous";
 import FormulaireRendezVous from "./pages/rendezvous/FormulaireRendezVous";
+import VoirRendezVous from "./pages/rendezvous/VoirRendezVous";
 
 
 export default function App() {
@@ -35,6 +36,8 @@ export default function App() {
         <Route path="/patients/:id/historique" element={<HistoriquePatient />} />
         <Route path="/rendez-vous" element={<AgendaRendezVous />} />        
         <Route path="/rendez-vous/nouveau" element={<FormulaireRendezVous />} />
+        <Route path="/rendez-vous/:id/modifier" element={<FormulaireRendezVous />} />
+        <Route path="/rendez-vous/:id" element={<VoirRendezVous />} />
         <Route path="/rendez-vous/:id/modifier" element={<FormulaireRendezVous />} />
 
       </Route>

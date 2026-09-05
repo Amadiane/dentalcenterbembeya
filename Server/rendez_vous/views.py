@@ -3,7 +3,7 @@ from auditlog.context import set_actor
 
 from .models import RendezVous
 from .serializers import RendezVousSerializer
-from .permissions import PeutGererRendezVous
+from .permissions import PeutGererRendezVous, PeutModifierRendezVous
 
 
 class RendezVousViewSet(viewsets.ModelViewSet):
@@ -14,11 +14,11 @@ class RendezVousViewSet(viewsets.ModelViewSet):
         queryset = RendezVous.objects.select_related("patient", "praticien")
 
         statut = self.request.query_params.get("statut")
+        inclure_annules = self.request.query_params.get("inclure_annules")
         if statut:
             queryset = queryset.filter(statut=statut)
-        else:
+        elif not inclure_annules:
             queryset = queryset.exclude(statut=RendezVous.Statut.ANNULE)
-
         date = self.request.query_params.get("date")
         if date:
             queryset = queryset.filter(date=date)
@@ -26,6 +26,10 @@ class RendezVousViewSet(viewsets.ModelViewSet):
         praticien_id = self.request.query_params.get("praticien")
         if praticien_id:
             queryset = queryset.filter(praticien_id=praticien_id)
+        
+        patient_id = self.request.query_params.get("patient")
+        if patient_id:
+            queryset = queryset.filter(patient_id=patient_id)
 
         recherche = self.request.query_params.get("search")
         if recherche:
@@ -39,9 +43,12 @@ class RendezVousViewSet(viewsets.ModelViewSet):
 
         return queryset
 
+   
     def get_permissions(self):
-        if self.action in ["create", "update", "partial_update", "destroy"]:
+        if self.action == "create":
             return [permissions.IsAuthenticated(), PeutGererRendezVous()]
+        if self.action in ["update", "partial_update", "destroy"]:
+            return [permissions.IsAuthenticated(), PeutGererRendezVous(), PeutModifierRendezVous()]
         return [permissions.IsAuthenticated()]
 
     def perform_create(self, serializer):
