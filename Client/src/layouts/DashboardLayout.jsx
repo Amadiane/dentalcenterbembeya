@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import { LayoutDashboard, Users, LogOut, Menu, X } from "lucide-react";
+import { LayoutDashboard, Users, LogOut, Menu, X, CalendarDays } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import styles from "../theme/components/DashboardLayout.module.css";
 
@@ -24,6 +24,9 @@ export default function DashboardLayout() {
           </NavLink>
           <NavLink to="/patients" onClick={() => setMenuOuvert(false)} className={({ isActive }) => `${styles.lien} ${isActive ? styles.lienActif : ""}`}>
             <Users size={18} /> Patients
+          </NavLink>
+          <NavLink to="/rendez-vous" onClick={() => setMenuOuvert(false)} className={({ isActive }) => `${styles.lien} ${isActive ? styles.lienActif : ""}`}>
+            <CalendarDays size={18} /> Rendez-vous
           </NavLink>
         </nav>
 

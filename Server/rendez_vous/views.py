@@ -1,5 +1,4 @@
 from rest_framework import viewsets, permissions
-from rest_framework.filters import SearchFilter
 from auditlog.context import set_actor
 
 from .models import RendezVous
@@ -10,8 +9,6 @@ from .permissions import PeutGererRendezVous
 class RendezVousViewSet(viewsets.ModelViewSet):
     serializer_class = RendezVousSerializer
     permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [SearchFilter]
-    search_fields = ["patient__nom", "patient__prenom", "patient__numero_dossier"]
 
     def get_queryset(self):
         queryset = RendezVous.objects.select_related("patient", "praticien")
@@ -29,6 +26,16 @@ class RendezVousViewSet(viewsets.ModelViewSet):
         praticien_id = self.request.query_params.get("praticien")
         if praticien_id:
             queryset = queryset.filter(praticien_id=praticien_id)
+
+        recherche = self.request.query_params.get("search")
+        if recherche:
+            queryset = queryset.filter(
+                patient__nom__icontains=recherche
+            ) | queryset.filter(
+                patient__prenom__icontains=recherche
+            ) | queryset.filter(
+                patient__numero_dossier__icontains=recherche
+            )
 
         return queryset
 
