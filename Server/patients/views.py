@@ -86,3 +86,18 @@ class PatientViewSet(viewsets.ModelViewSet):
             content_type=content_type, object_pk=str(patient.pk)
         ).select_related("actor").order_by("-timestamp")
         return Response(EntreeJournalSerializer(entrees, many=True).data)
+    
+    @action(detail=False, methods=["get"], url_path="archives", permission_classes=[permissions.IsAuthenticated, EstAdministrateurGeneral])
+    def archives(self, request):
+        """GET /api/patients/archives/ — liste des dossiers archivés (admin général uniquement)."""
+        patients = Patient.objects.filter(actif=False).order_by("nom", "prenom")
+        return Response(PatientSerializer(patients, many=True, context={"request": request}).data)
+
+    @action(detail=True, methods=["post"], url_path="restaurer", permission_classes=[permissions.IsAuthenticated, EstAdministrateurGeneral])
+    def restaurer(self, request, pk=None):
+        """POST /api/patients/{id}/restaurer/ — sort un dossier de l'archive."""
+        patient = Patient.objects.get(pk=pk, actif=False)
+        with set_actor(request.user):
+            patient.actif = True
+            patient.save(update_fields=["actif"])
+        return Response(PatientSerializer(patient, context={"request": request}).data)

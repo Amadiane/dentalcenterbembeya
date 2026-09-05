@@ -9,4 +9,6 @@ export const patientsService = {
   telechargerFiche: (id) => api.get(`${CONFIG.BASE_URL}/api/patients/${id}/fiche-pdf/`, { responseType: "blob" }),
   archiver: (id) => api.delete(`${CONFIG.BASE_URL}/api/patients/${id}/`),
   historique: (id) => api.get(`${CONFIG.BASE_URL}/api/patients/${id}/historique/`),
+  listerArchives: () => api.get(`${CONFIG.BASE_URL}/api/patients/archives/`),
+  restaurer: (id) => api.post(`${CONFIG.BASE_URL}/api/patients/${id}/restaurer/`),
 };

@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Search } from "lucide-react";
 import { patientsService } from "../../services/patientsService";
+import { useAuth } from "../../context/AuthContext";
 import styles from "../../theme/pages/patients/ListePatients.module.css";
 
 export default function ListePatients() {
+  const { utilisateur } = useAuth();
   const [patients, setPatients] = useState([]);
   const [recherche, setRecherche] = useState("");
   const [chargement, setChargement] = useState(true);
@@ -24,9 +26,16 @@ export default function ListePatients() {
     <div className="conteneur-page">
       <div className={styles.entete}>
         <h1 className={styles.titre}>Patients</h1>
-        <Link to="/patients/nouveau" className={`bouton-primaire ${styles.boutonNouveau}`}>
-          <Plus size={16} /> Nouveau patient
-        </Link>
+        <div style={{ display: "flex", gap: 10 }}>
+          {utilisateur?.role === "administrateur_general" && (
+            <Link to="/patients/archives" className="bouton-secondaire" style={{ textDecoration: "none" }}>
+              Dossiers archivés
+            </Link>
+          )}
+          <Link to="/patients/nouveau" className={`bouton-primaire ${styles.boutonNouveau}`}>
+            <Plus size={16} /> Nouveau patient
+          </Link>
+        </div>
       </div>
 
       <div className={styles.barreRecherche}>
@@ -39,7 +48,7 @@ export default function ListePatients() {
         />
       </div>
 
-        <div className="carte-moderne" style={{ padding: 0, overflowX: "auto" }}>
+      <div className="carte-moderne" style={{ padding: 0, overflowX: "auto" }}>
         {chargement && <p className={styles.etatVide}>Chargement...</p>}
         {!chargement && patients.length === 0 && (
           <p className={styles.etatVide}>Aucun patient trouvé.</p>
