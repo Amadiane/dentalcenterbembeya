@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Plus } from "lucide-react";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import { ArrowLeft, Plus, History } from "lucide-react";
 import { facturationService } from "../../services/facturationService";
 import { useAuth } from "../../context/AuthContext";
 import ConfirmModal from "../../components/ConfirmModal";
@@ -107,8 +107,16 @@ export default function DetailFacture() {
             {facture.patient_numero_dossier} — {facture.patient_nom} {facture.patient_prenom} · {new Date(facture.date_emission).toLocaleDateString("fr-FR")}
           </p>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <span className={`${styles.badge} ${BADGES[facture.statut]}`}>{facture.statut_affiche}</span>
+          {peutGerer && facture.statut !== "annulee" && (
+            <Link to={`/facturation/${id}/modifier`} className="bouton-secondaire" style={{ textDecoration: "none" }}>
+              Modifier
+            </Link>
+          )}
+          <Link to={`/facturation/${id}/historique`} className="bouton-secondaire" style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none" }}>
+            <History size={16} /> Historique
+          </Link>
           <button onClick={telechargerRecu} className="bouton-secondaire">Télécharger le reçu</button>
         </div>
       </div>

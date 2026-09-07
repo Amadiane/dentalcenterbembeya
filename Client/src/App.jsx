@@ -18,6 +18,7 @@ import FormulaireActe from "./pages/actes/FormulaireActe";
 import ListeFactures from "./pages/facturation/ListeFactures";
 import FormulaireFacture from "./pages/facturation/FormulaireFacture";
 import DetailFacture from "./pages/facturation/DetailFacture";
+import HistoriqueFacture from "./pages/facturation/HistoriqueFacture";
 
 
 export default function App() {
@@ -51,7 +52,9 @@ export default function App() {
         <Route path="/actes/:id/modifier" element={<FormulaireActe />} />
         <Route path="/facturation" element={<ListeFactures />} />
         <Route path="/facturation/nouvelle" element={<FormulaireFacture />} />
+        <Route path="/facturation/:id/modifier" element={<FormulaireFacture />} />
         <Route path="/facturation/:id" element={<DetailFacture />} />
+        <Route path="/facturation/:id/historique" element={<HistoriqueFacture />} />
 
 
       </Route>

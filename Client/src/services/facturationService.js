@@ -9,4 +9,5 @@ export const facturationService = {
   annuler: (id) => api.post(`${CONFIG.BASE_URL}/api/factures/${id}/annuler/`),
   ajouterPaiement: (id, donnees) => api.post(`${CONFIG.BASE_URL}/api/factures/${id}/paiements/`, donnees),
   telechargerRecu: (id) => api.get(`${CONFIG.BASE_URL}/api/factures/${id}/recu-pdf/`, { responseType: "blob" }),
+  historique: (id) => api.get(`${CONFIG.BASE_URL}/api/factures/${id}/historique/`),
 };

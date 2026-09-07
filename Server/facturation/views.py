@@ -1,20 +1,19 @@
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+from django.contrib.contenttypes.models import ContentType
+
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from auditlog.context import set_actor
 
-from .models import Facture, Paiement
-from .serializers import PaiementSerializer
-from .permissions import PeutGererFacturation, PeutAnnulerFacture
-
-from django.template.loader import render_to_string
-from django.http import HttpResponse
 from xhtml2pdf import pisa
+from auditlog.models import LogEntry
+from auditlog.context import set_actor
 from patients.views import link_callback
 
-from django.contrib.contenttypes.models import ContentType
-from auditlog.models import LogEntry
-from .serializers import FactureSerializer, EntreeJournalFactureSerializer
+from .models import Facture, Paiement
+from .serializers import FactureSerializer, PaiementSerializer, EntreeJournalFactureSerializer
+from .permissions import PeutGererFacturation, PeutAnnulerFacture
 
 
 class FactureViewSet(viewsets.ModelViewSet):
@@ -57,8 +56,6 @@ class FactureViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="annuler")
     def annuler(self, request, pk=None):
-        """Annule une facture — les paiements déjà enregistrés restent visibles pour la traçabilité,
-        mais la facture n'est plus comptée comme active."""
         facture = self.get_object()
         with set_actor(request.user):
             facture.statut = Facture.Statut.ANNULEE
@@ -67,7 +64,6 @@ class FactureViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"], url_path="paiements")
     def ajouter_paiement(self, request, pk=None):
-        """Enregistre un nouveau paiement (tranche) sur cette facture."""
         facture = self.get_object()
         serializer = PaiementSerializer(data={**request.data, "facture": facture.id})
         serializer.is_valid(raise_exception=True)
@@ -92,15 +88,14 @@ class FactureViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["get"], url_path="historique")
     def historique(self, request, pk=None):
-        """Regroupe l'historique de la facture ET de ses paiements liés, triés ensemble par date."""
         facture = self.get_object()
 
-        content_type_facture = ContentType.objects.get_for_model(facture.__class__)
+        content_type_facture = ContentType.objects.get_for_model(Facture)
         entrees_facture = LogEntry.objects.filter(
             content_type=content_type_facture, object_pk=str(facture.pk)
         )
 
-        content_type_paiement = ContentType.objects.get_for_model(facture.paiements.model)
+        content_type_paiement = ContentType.objects.get_for_model(Paiement)
         ids_paiements = list(facture.paiements.values_list("id", flat=True))
         entrees_paiement = LogEntry.objects.filter(
             content_type=content_type_paiement, object_pk__in=[str(pid) for pid in ids_paiements]

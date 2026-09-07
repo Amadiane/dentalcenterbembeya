@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Trash2, Plus } from "lucide-react";
 import { facturationService } from "../../services/facturationService";
 import { patientsService } from "../../services/patientsService";
@@ -10,9 +10,11 @@ import styles from "../../theme/pages/facturation/FormulaireFacture.module.css";
 const formaterGNF = (montant) => new Intl.NumberFormat("fr-FR").format(Math.round(montant || 0)) + " GNF";
 
 export default function FormulaireFacture() {
+  const { id } = useParams();
   const navigate = useNavigate();
   const { utilisateur } = useAuth();
   const estAdminGeneral = utilisateur?.role === "administrateur_general";
+  const modeEdition = Boolean(id);
 
   const [rechercheTexte, setRechercheTexte] = useState("");
   const [resultatsPatients, setResultatsPatients] = useState([]);
@@ -24,29 +26,45 @@ export default function FormulaireFacture() {
   const [notes, setNotes] = useState("");
   const [remiseGlobale, setRemiseGlobale] = useState(0);
   const [motifRemise, setMotifRemise] = useState("");
+  const [factureExistante, setFactureExistante] = useState(null);
+  const [chargement, setChargement] = useState(modeEdition);
   const [erreur, setErreur] = useState("");
   const [enregistrement, setEnregistrement] = useState(false);
 
   useEffect(() => {
-    actesService.lister().then(({ data }) => setActesDisponibles(data.results || data));
+    actesService.lister({ inclure_inactifs: true }).then(({ data }) => setActesDisponibles(data.results || data));
   }, []);
 
-  // Première ligne pré-remplie automatiquement dès que le catalogue est chargé
+  // Chargement de la facture existante en mode édition
   useEffect(() => {
-    if (actesDisponibles.length > 0 && lignes.length === 0) {
+    if (!modeEdition) return;
+    facturationService.obtenir(id).then(({ data }) => {
+      setFactureExistante(data);
+      setPatientChoisi({ id: data.patient, nom: data.patient_nom, prenom: data.patient_prenom, numero_dossier: data.patient_numero_dossier });
+      setDateEmission(data.date_emission);
+      setNotes(data.notes || "");
+      setRemiseGlobale(data.remise_globale_pourcentage || 0);
+      setMotifRemise(data.motif_remise || "");
+      setLignes(data.lignes.map((l) => ({ acte: l.acte, quantite: l.quantite, remise_pourcentage: l.remise_pourcentage })));
+    }).finally(() => setChargement(false));
+  }, [id, modeEdition]);
+
+  // Première ligne pré-remplie automatiquement en création, une fois le catalogue chargé
+  useEffect(() => {
+    if (!modeEdition && actesDisponibles.length > 0 && lignes.length === 0) {
       setLignes([{ acte: actesDisponibles[0].id, quantite: 1, remise_pourcentage: 0 }]);
     }
-  }, [actesDisponibles]);
+  }, [actesDisponibles, modeEdition]);
 
   useEffect(() => {
-    if (rechercheTexte.length < 2) { setResultatsPatients([]); return; }
+    if (modeEdition || rechercheTexte.length < 2) { setResultatsPatients([]); return; }
     const delai = setTimeout(() => {
       patientsService.lister({ search: rechercheTexte }).then(({ data }) => {
         setResultatsPatients((data.results || data).slice(0, 6));
       });
     }, 300);
     return () => clearTimeout(delai);
-  }, [rechercheTexte]);
+  }, [rechercheTexte, modeEdition]);
 
   const ajouterLigne = () => {
     if (actesDisponibles.length === 0) return;
@@ -89,15 +107,21 @@ export default function FormulaireFacture() {
 
     setEnregistrement(true);
     try {
-      const { data } = await facturationService.creer({
-        patient: patientChoisi.id,
+      const donnees = {
         date_emission: dateEmission,
         notes,
         remise_globale_pourcentage: remiseGlobale,
         motif_remise: motifRemise,
         lignes: lignes.map((l) => ({ acte: l.acte, quantite: l.quantite, remise_pourcentage: l.remise_pourcentage })),
-      });
-      navigate(`/facturation/${data.id}`);
+      };
+
+      if (modeEdition) {
+        await facturationService.modifier(id, donnees);
+        navigate(`/facturation/${id}`);
+      } else {
+        const { data } = await facturationService.creer({ patient: patientChoisi.id, ...donnees });
+        navigate(`/facturation/${data.id}`);
+      }
     } catch (err) {
       const messageApi = err.response?.data?.remise_globale_pourcentage || err.response?.data?.lignes;
       setErreur(
@@ -109,9 +133,16 @@ export default function FormulaireFacture() {
     }
   };
 
+  if (chargement) return <p>Chargement...</p>;
+
+  // En édition, une facture déjà payée (même partiellement) ne doit plus voir ses lignes
+  // changer silencieusement — modifier les actes changerait le total sans que les paiements
+  // déjà reçus s'ajustent automatiquement. On bloque ce cas précis.
+  const modificationLignesBloquee = modeEdition && factureExistante?.montant_paye > 0;
+
   return (
     <div className="conteneur-page" style={{ maxWidth: 800 }}>
-      <h1 className={styles.titre}>Nouvelle facture</h1>
+      <h1 className={styles.titre}>{modeEdition ? `Modifier la facture ${factureExistante?.numero_facture || ""}` : "Nouvelle facture"}</h1>
 
       {erreur && (
         <div style={{ background: "#fdecec", color: "var(--couleur-danger)", border: "1px solid #f5c6c6", borderRadius: 8, padding: "10px 12px", fontSize: 13, marginBottom: 16 }}>
@@ -119,14 +150,22 @@ export default function FormulaireFacture() {
         </div>
       )}
 
+      {modificationLignesBloquee && (
+        <div style={{ background: "#fdf1de", color: "#b5720f", border: "1px solid #f5dfb8", borderRadius: 8, padding: "10px 12px", fontSize: 13, marginBottom: 16 }}>
+          ⚠️ Cette facture a déjà reçu au moins un paiement — les actes facturés ne sont plus modifiables, pour éviter toute incohérence avec les paiements déjà enregistrés. Seuls la date, les notes et la remise restent modifiables.
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
         <div className="carte-moderne" style={{ marginBottom: 20 }}>
           <div className="champ-formulaire">
             <label>Patient *</label>
-            {patientChoisi ? (
+            {modeEdition || patientChoisi ? (
               <div className={styles.patientChoisi}>
-                <span>{patientChoisi.numero_dossier} — {patientChoisi.nom} {patientChoisi.prenom}</span>
-                <button type="button" onClick={() => setPatientChoisi(null)} className="bouton-secondaire">Changer</button>
+                <span>{patientChoisi?.numero_dossier} — {patientChoisi?.nom} {patientChoisi?.prenom}</span>
+                {!modeEdition && (
+                  <button type="button" onClick={() => setPatientChoisi(null)} className="bouton-secondaire">Changer</button>
+                )}
               </div>
             ) : (
               <div className={styles.rechercheZone}>
@@ -164,9 +203,11 @@ export default function FormulaireFacture() {
         <div className="carte-moderne" style={{ marginBottom: 20 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
             <div style={{ fontWeight: 700, color: "var(--couleur-primaire-fonce)" }}>Actes facturés</div>
-            <button type="button" onClick={ajouterLigne} className="bouton-secondaire" style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <Plus size={15} /> Ajouter un acte
-            </button>
+            {!modificationLignesBloquee && (
+              <button type="button" onClick={ajouterLigne} className="bouton-secondaire" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <Plus size={15} /> Ajouter un acte
+              </button>
+            )}
           </div>
 
           {lignes.length === 0 && (
@@ -188,28 +229,38 @@ export default function FormulaireFacture() {
                 {lignes.map((ligne, index) => (
                   <tr key={index}>
                     <td>
-                      <select value={ligne.acte} onChange={(e) => modifierLigne(index, "acte", e.target.value)}>
+                      <select
+                        value={ligne.acte}
+                        onChange={(e) => modifierLigne(index, "acte", e.target.value)}
+                        disabled={modificationLignesBloquee}
+                      >
                         {actesDisponibles.map((a) => (
                           <option key={a.id} value={a.id}>{a.code} — {a.nom} ({formaterGNF(a.tarif)})</option>
                         ))}
                       </select>
                     </td>
                     <td>
-                      <input type="number" min="1" value={ligne.quantite} onChange={(e) => modifierLigne(index, "quantite", e.target.value)} />
+                      <input
+                        type="number" min="1" value={ligne.quantite}
+                        onChange={(e) => modifierLigne(index, "quantite", e.target.value)}
+                        disabled={modificationLignesBloquee}
+                      />
                     </td>
                     <td>
                       <input
                         type="number" min="0" max="100" value={ligne.remise_pourcentage}
                         onChange={(e) => modifierLigne(index, "remise_pourcentage", e.target.value)}
-                        disabled={!estAdminGeneral}
+                        disabled={!estAdminGeneral || modificationLignesBloquee}
                         title={!estAdminGeneral ? "Seul l'administrateur général peut accorder une remise" : ""}
                       />
                     </td>
                     <td style={{ fontWeight: 600 }}>{formaterGNF(sousTotalLigne(ligne))}</td>
                     <td>
-                      <button type="button" onClick={() => supprimerLigne(index)} className={styles.boutonSupprimerLigne}>
-                        <Trash2 size={16} />
-                      </button>
+                      {!modificationLignesBloquee && (
+                        <button type="button" onClick={() => supprimerLigne(index)} className={styles.boutonSupprimerLigne}>
+                          <Trash2 size={16} />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -256,9 +307,11 @@ export default function FormulaireFacture() {
         </div>
 
         <div className={styles.actions}>
-          <button type="button" className="bouton-secondaire" onClick={() => navigate("/facturation")}>Annuler</button>
+          <button type="button" className="bouton-secondaire" onClick={() => navigate(modeEdition ? `/facturation/${id}` : "/facturation")}>
+            Annuler
+          </button>
           <button type="submit" className="bouton-primaire" disabled={enregistrement}>
-            {enregistrement ? "Enregistrement..." : "Créer la facture"}
+            {enregistrement ? "Enregistrement..." : modeEdition ? "Enregistrer les modifications" : "Créer la facture"}
           </button>
         </div>
       </form>
