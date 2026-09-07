@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, History, Pencil } from "lucide-react";
 import { rendezVousService } from "../../services/rendezVousService";
+import { useAuth } from "../../context/AuthContext";
+
+const ROLES_GESTION = ["administrateur_general", "accueil_receptionniste", "medecin_chef", "medecin"];
+const STATUTS_MODIFIABLES_DATE = ["planifie", "confirme"];
+const STATUTS_CLOS = ["termine", "absent"];
 
 const COULEURS_STATUT = {
   planifie: { bg: "#e5eef7", texte: "#0f4c81" },
@@ -14,7 +19,11 @@ const COULEURS_STATUT = {
 export default function VoirRendezVous() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { utilisateur } = useAuth();
   const [rdv, setRdv] = useState(null);
+
+  const peutGerer = ROLES_GESTION.includes(utilisateur?.role);
+  const estAdminGeneral = utilisateur?.role === "administrateur_general";
 
   useEffect(() => {
     rendezVousService.obtenir(id).then(({ data }) => setRdv(data));
@@ -23,6 +32,16 @@ export default function VoirRendezVous() {
   if (!rdv) return <p>Chargement...</p>;
 
   const c = COULEURS_STATUT[rdv.statut] || COULEURS_STATUT.planifie;
+  const estClos = STATUTS_CLOS.includes(rdv.statut);
+  const dateModifiable = STATUTS_MODIFIABLES_DATE.includes(rdv.statut);
+  const peutModifier = peutGerer && (dateModifiable || estAdminGeneral);
+  const peutAnnuler = peutGerer && (dateModifiable || estAdminGeneral) && rdv.statut !== "annule";
+
+  const annuler = async () => {
+    if (!window.confirm(`Annuler le rendez-vous de ${rdv.patient_nom} ${rdv.patient_prenom} à ${rdv.heure_debut.slice(0, 5)} ?`)) return;
+    await rendezVousService.annuler(id);
+    navigate("/rendez-vous");
+  };
 
   const ligne = (label, valeur) => (
     <div style={{ padding: "12px 0", borderBottom: "1px solid var(--couleur-bordure)" }}>
@@ -40,8 +59,8 @@ export default function VoirRendezVous() {
         <ArrowLeft size={16} /> Retour à l'agenda
       </button>
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-        <h1 style={{ fontSize: 22, color: "var(--couleur-primaire-fonce)", margin: 0 }}>Rendez-vous clôturé</h1>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 10 }}>
+        <h1 style={{ fontSize: 22, color: "var(--couleur-primaire-fonce)", margin: 0 }}>Détail du rendez-vous</h1>
         <span style={{ background: c.bg, color: c.texte, fontSize: 12, fontWeight: 700, padding: "5px 12px", borderRadius: 20 }}>
           {rdv.statut_affiche}
         </span>
@@ -56,17 +75,43 @@ export default function VoirRendezVous() {
         {ligne("Notes", rdv.notes)}
       </div>
 
-      <p style={{ fontSize: 13, color: "var(--couleur-texte-attenue)", marginBottom: 16 }}>
-        Ce rendez-vous est clôturé et ne peut plus être modifié. Pour une nouvelle consultation, créez un nouveau rendez-vous.
-      </p>
+      {estClos && (
+        <p style={{ fontSize: 13, color: "var(--couleur-texte-attenue)", marginBottom: 16 }}>
+          Ce rendez-vous est clôturé{estAdminGeneral ? "" : " et ne peut plus être modifié"}. Pour une nouvelle consultation, créez un nouveau rendez-vous.
+        </p>
+      )}
 
-      <Link
-        to={`/rendez-vous/nouveau?patientId=${rdv.patient}&praticienId=${rdv.praticien}`}
-        className="bouton-primaire"
-        style={{ display: "inline-block", textDecoration: "none" }}
-      >
-        Créer un nouveau rendez-vous pour ce patient
-      </Link>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+        {peutModifier && (
+          <Link to={`/rendez-vous/${id}/modifier`} className="bouton-primaire" style={{ display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none" }}>
+            <Pencil size={16} /> {dateModifiable ? "Reprogrammer" : "Modifier"}
+          </Link>
+        )}
+
+        {estClos && (
+          <Link
+            to={`/rendez-vous/nouveau?patientId=${rdv.patient}&praticienId=${rdv.praticien}`}
+            className={peutModifier ? "bouton-secondaire" : "bouton-primaire"}
+            style={{ display: "inline-block", textDecoration: "none" }}
+          >
+            Créer un nouveau rendez-vous pour ce patient
+          </Link>
+        )}
+
+        {peutAnnuler && (
+          <button onClick={annuler} className="bouton-secondaire" style={{ color: "var(--couleur-danger)" }}>
+            Annuler ce rendez-vous
+          </button>
+        )}
+
+        <Link
+          to={`/rendez-vous/${id}/historique`}
+          className="bouton-secondaire"
+          style={{ display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none" }}
+        >
+          <History size={16} /> Historique
+        </Link>
+      </div>
     </div>
   );
 }

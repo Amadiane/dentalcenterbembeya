@@ -12,6 +12,7 @@ import PatientsArchives from "./pages/patients/PatientsArchives";
 import AgendaRendezVous from "./pages/rendezvous/AgendaRendezVous";
 import FormulaireRendezVous from "./pages/rendezvous/FormulaireRendezVous";
 import VoirRendezVous from "./pages/rendezvous/VoirRendezVous";
+import HistoriqueRendezVous from "./pages/rendezvous/HistoriqueRendezVous";
 
 
 export default function App() {
@@ -39,6 +40,8 @@ export default function App() {
         <Route path="/rendez-vous/:id/modifier" element={<FormulaireRendezVous />} />
         <Route path="/rendez-vous/:id" element={<VoirRendezVous />} />
         <Route path="/rendez-vous/:id/modifier" element={<FormulaireRendezVous />} />
+        <Route path="/rendez-vous/:id/historique" element={<HistoriqueRendezVous />} />
+
 
       </Route>
     </Routes>

@@ -13,19 +13,43 @@
   margin: 0;
 }
 
-.filtreDate {
+.barreControles {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
-.filtreDate input {
+.barreControles input,
+.barreControles select {
   border: 1px solid var(--couleur-bordure);
   border-radius: 8px;
   padding: 9px 12px;
   font-size: 14px;
   font-family: inherit;
+}
+
+.bascule {
+  display: flex;
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.basculeBouton {
+  background: var(--couleur-surface);
+  border: none;
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--couleur-texte-attenue);
+  cursor: pointer;
+}
+
+.basculeBoutonActif {
+  background: var(--couleur-primaire);
+  color: #ffffff;
 }
 
 .tableau {
@@ -48,6 +72,15 @@
   padding: 12px 16px;
   border-bottom: 1px solid var(--couleur-bordure);
   vertical-align: middle;
+}
+
+.ligneJourSemaine td {
+  background: var(--couleur-fond);
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--couleur-primaire);
+  padding: 8px 16px;
 }
 
 .badge {

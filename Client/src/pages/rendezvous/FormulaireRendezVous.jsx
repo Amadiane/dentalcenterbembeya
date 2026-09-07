@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams, Link } from "react-router-dom";
+import { History } from "lucide-react";
 import { rendezVousService } from "../../services/rendezVousService";
 import { patientsService } from "../../services/patientsService";
 import { utilisateursService } from "../../services/utilisateursService";
@@ -247,6 +248,15 @@ export default function FormulaireRendezVous() {
         </div>
 
         <div className={styles.actions}>
+          {modeEdition && (
+            <Link
+              to={`/rendez-vous/${id}/historique`}
+              className="bouton-secondaire"
+              style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", marginRight: "auto" }}
+            >
+              <History size={16} /> Historique
+            </Link>
+          )}
           <button type="button" className="bouton-secondaire" onClick={() => navigate("/rendez-vous")}>Annuler</button>
           <button type="submit" className="bouton-primaire">Enregistrer</button>
         </div>

@@ -4,9 +4,10 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { Users, CalendarCheck, TrendingUp, Wallet, Plus, CalendarPlus, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { patientsService } from "../../services/patientsService";
+import { rendezVousService } from "../../services/rendezVousService";
 import styles from "../../theme/pages/dashboard/TableauDeBord.module.css";
 
-// Données fictives — à remplacer quand les modules Rendez-vous/Facturation seront branchés ici
+// Données encore fictives — nécessitent les modules Facturation / statistiques d'occupation
 const EVOLUTION_MOCK = [
   { mois: "Avr", patients: 18 },
   { mois: "Mai", patients: 24 },
@@ -16,20 +17,21 @@ const EVOLUTION_MOCK = [
   { mois: "Sept", patients: 27 },
 ];
 
-const RDV_MOCK = [
-  { heure: "09:00", patient: "Aminata Camara", praticien: "Dr. Amadou Diané" },
-  { heure: "10:30", patient: "Ibrahima Sow", praticien: "Dr. Amadou Diané" },
-  { heure: "14:00", patient: "Fatoumata Bah", praticien: "Dr. Mariam Touré" },
-];
-
 export default function TableauDeBord() {
   const { utilisateur } = useAuth();
   const [nombrePatients, setNombrePatients] = useState(null);
+  const [rendezVousJour, setRendezVousJour] = useState([]);
+  const [chargementRdv, setChargementRdv] = useState(true);
 
   useEffect(() => {
     patientsService.lister({ page_size: 1 })
       .then(({ data }) => setNombrePatients(data.count ?? (Array.isArray(data) ? data.length : null)))
       .catch(() => setNombrePatients(null));
+
+    rendezVousService.lister({ date: new Date().toISOString().slice(0, 10) })
+      .then(({ data }) => setRendezVousJour(data.results || data))
+      .catch(() => setRendezVousJour([]))
+      .finally(() => setChargementRdv(false));
   }, []);
 
   const dateFormatee = new Date().toLocaleDateString("fr-FR", {
@@ -54,12 +56,11 @@ export default function TableauDeBord() {
           </div>
         </div>
 
-        {/* Fictif — module Rendez-vous pas encore branché ici */}
         <div className={styles.carteStat} style={{ "--couleur-icone-fond": "#dcf5f5", "--couleur-icone-texte": "#1b8fab" }}>
           <div className={styles.iconeStat}><CalendarCheck size={22} /></div>
           <div className={styles.labelStat}>Rendez-vous aujourd'hui</div>
-          <div className={styles.valeurStat}>3</div>
-          <div className={`${styles.tendance} ${styles.tendanceNeutre}`}>Exemple</div>
+          <div className={styles.valeurStat}>{chargementRdv ? "—" : rendezVousJour.length}</div>
+          <div className={`${styles.tendance} ${styles.tendanceNeutre}`}>Donnée réelle</div>
         </div>
 
         {/* Fictif — module Facturation pas encore développé */}
@@ -110,20 +111,30 @@ export default function TableauDeBord() {
         <div className={styles.carte}>
           <div className={styles.carteEntete}>
             <h3 className={styles.carteTitre}>Rendez-vous d'aujourd'hui</h3>
-            <span className={styles.badgeFictif}>Exemple</span>
           </div>
 
+          {chargementRdv && <p className={styles.etatVide}>Chargement...</p>}
+          {!chargementRdv && rendezVousJour.length === 0 && (
+            <p className={styles.etatVide}>Aucun rendez-vous prévu aujourd'hui.</p>
+          )}
+
           <div className={styles.listeRdv}>
-            {RDV_MOCK.map((rdv, i) => (
-              <div key={i} className={styles.itemRdv}>
-                <div className={styles.heureRdv}>{rdv.heure}</div>
+            {rendezVousJour.slice(0, 6).map((rdv) => (
+              <div key={rdv.id} className={styles.itemRdv}>
+                <div className={styles.heureRdv}>{rdv.heure_debut?.slice(0, 5)}</div>
                 <div className={styles.detailRdv}>
-                  <div className={styles.nomPatientRdv}>{rdv.patient}</div>
-                  <div className={styles.praticienRdv}>{rdv.praticien}</div>
+                  <div className={styles.nomPatientRdv}>{rdv.patient_nom} {rdv.patient_prenom}</div>
+                  <div className={styles.praticienRdv}>{rdv.praticien_nom}</div>
                 </div>
               </div>
             ))}
           </div>
+
+          {rendezVousJour.length > 0 && (
+            <Link to="/rendez-vous" style={{ display: "block", textAlign: "center", marginTop: 14, fontSize: 13, fontWeight: 600, color: "var(--couleur-primaire)" }}>
+              Voir tout l'agenda →
+            </Link>
+          )}
         </div>
       </div>
 
@@ -132,8 +143,8 @@ export default function TableauDeBord() {
         <Link to="/patients/nouveau" className={`${styles.actionRapide} ${styles.actionPrimaire}`}>
           <Plus size={18} /> Nouveau patient
         </Link>
-        <Link to="/patients" className={`${styles.actionRapide} ${styles.actionSecondaire}`}>
-          <CalendarPlus size={18} /> Voir les patients
+        <Link to="/rendez-vous/nouveau" className={`${styles.actionRapide} ${styles.actionSecondaire}`}>
+          <CalendarPlus size={18} /> Nouveau rendez-vous
         </Link>
       </div>
     </div>
