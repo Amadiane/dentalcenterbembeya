@@ -13,6 +13,8 @@ import AgendaRendezVous from "./pages/rendezvous/AgendaRendezVous";
 import FormulaireRendezVous from "./pages/rendezvous/FormulaireRendezVous";
 import VoirRendezVous from "./pages/rendezvous/VoirRendezVous";
 import HistoriqueRendezVous from "./pages/rendezvous/HistoriqueRendezVous";
+import CatalogueActes from "./pages/actes/CatalogueActes";
+import FormulaireActe from "./pages/actes/FormulaireActe";
 
 
 export default function App() {
@@ -41,6 +43,9 @@ export default function App() {
         <Route path="/rendez-vous/:id" element={<VoirRendezVous />} />
         <Route path="/rendez-vous/:id/modifier" element={<FormulaireRendezVous />} />
         <Route path="/rendez-vous/:id/historique" element={<HistoriqueRendezVous />} />
+        <Route path="/actes" element={<CatalogueActes />} />
+        <Route path="/actes/nouveau" element={<FormulaireActe />} />
+        <Route path="/actes/:id/modifier" element={<FormulaireActe />} />
 
 
       </Route>
