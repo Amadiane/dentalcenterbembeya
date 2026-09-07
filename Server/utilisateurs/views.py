@@ -5,6 +5,10 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from auditlog.context import set_actor
 
+from django.contrib.contenttypes.models import ContentType
+from auditlog.models import LogEntry
+from .serializers import EntreeJournalUtilisateurSerializer
+
 from .models import Utilisateur
 from .serializers import (
     ConnexionSerializer, UtilisateurSerializer, UtilisateurCreationSerializer,
@@ -68,3 +72,12 @@ class UtilisateurViewSet(viewsets.ModelViewSet):
             utilisateur.set_password(serializer.validated_data["nouveau_mot_de_passe"])
             utilisateur.save(update_fields=["password"])
         return Response({"detail": "Mot de passe réinitialisé."})
+
+    @action(detail=True, methods=["get"], url_path="historique")
+    def historique(self, request, pk=None):
+        utilisateur = self.get_object()
+        content_type = ContentType.objects.get_for_model(Utilisateur)
+        entrees = LogEntry.objects.filter(
+            content_type=content_type, object_pk=str(utilisateur.pk)
+        ).select_related("actor").order_by("-timestamp")
+        return Response(EntreeJournalUtilisateurSerializer(entrees, many=True).data)

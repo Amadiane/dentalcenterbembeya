@@ -58,3 +58,62 @@ class ConnexionSerializer(TokenObtainPairSerializer):
             )
         data["utilisateur"] = UtilisateurSerializer(self.user).data
         return data
+
+
+
+import json
+from auditlog.models import LogEntry
+
+LABELS_CHAMPS_UTILISATEUR = {
+    "first_name": "Prénom",
+    "last_name": "Nom",
+    "email": "E-mail",
+    "telephone": "Téléphone",
+    "role": "Rôle",
+    "actif": "Statut du compte",
+    "password": "Mot de passe",
+}
+CHAMPS_IGNORES_UTILISATEUR = {
+    "date_creation", "id", "last_login", "date_joined", "is_staff", "is_superuser",
+}
+
+
+class EntreeJournalUtilisateurSerializer(serializers.ModelSerializer):
+    auteur = serializers.SerializerMethodField()
+    action_affichee = serializers.CharField(source="get_action_display", read_only=True)
+    modifications = serializers.SerializerMethodField()
+
+    class Meta:
+        model = LogEntry
+        fields = ["id", "timestamp", "auteur", "action_affichee", "modifications"]
+
+    def get_auteur(self, obj):
+        if not obj.actor:
+            return "Système"
+        return obj.actor.get_full_name() or obj.actor.username
+
+    def get_modifications(self, obj):
+        brut = getattr(obj, "changes_dict", None)
+        if brut is None:
+            try:
+                brut = json.loads(obj.changes) if isinstance(obj.changes, str) else (obj.changes or {})
+            except (TypeError, ValueError):
+                brut = {}
+
+        resultats = []
+        for champ, valeurs in brut.items():
+            if champ in CHAMPS_IGNORES_UTILISATEUR:
+                continue
+            if isinstance(valeurs, list) and len(valeurs) == 2:
+                ancienne, nouvelle = valeurs
+            else:
+                ancienne, nouvelle = None, valeurs
+            # Le mot de passe (haché) ne doit jamais s'afficher, même modifié
+            if champ == "password":
+                ancienne, nouvelle = "••••••••", "••••••••"
+            resultats.append({
+                "champ": LABELS_CHAMPS_UTILISATEUR.get(champ, champ),
+                "ancienne_valeur": ancienne if ancienne not in (None, "") else "—",
+                "nouvelle_valeur": nouvelle if nouvelle not in (None, "") else "—",
+            })
+        return resultats

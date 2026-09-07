@@ -1,0 +1,255 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600&display=swap');
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+/* ---------- Panneau de marque (gauche) ---------- */
+
+.panneauMarque {
+  position: relative;
+  width: 44%;
+  min-width: 380px;
+  background: linear-gradient(165deg, #0a2540 0%, #0f4c81 100%);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 56px 52px;
+  overflow: hidden;
+}
+
+.motif {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.9;
+}
+
+.contenuMarque {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.monogramme {
+  font-family: "Manrope", sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  color: #7fd4e6;
+  border: 1px solid rgba(127, 212, 230, 0.4);
+  border-radius: 6px;
+  padding: 6px 10px;
+  display: inline-block;
+  margin-bottom: 28px;
+}
+
+.nomClinique {
+  font-family: "Manrope", sans-serif;
+  font-weight: 800;
+  font-size: 34px;
+  line-height: 1.2;
+  margin: 0 0 14px;
+}
+
+.slogan {
+  font-size: 15px;
+  color: #a9d3e8;
+  margin: 0;
+  max-width: 320px;
+  line-height: 1.5;
+}
+
+.confiance {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: #8fb8d4;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  padding-top: 20px;
+}
+
+/* ---------- Panneau formulaire (droite) ---------- */
+
+.panneauFormulaire {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f7f9fb;
+  padding: 32px;
+}
+
+.formulaire {
+  width: 100%;
+  max-width: 380px;
+  animation: apparition 0.5s ease-out both;
+}
+
+@keyframes apparition {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .formulaire { animation: none; }
+}
+
+.enteteFormulaire h2 {
+  font-family: "Manrope", sans-serif;
+  font-weight: 800;
+  font-size: 26px;
+  color: #0a2540;
+  margin: 0 0 8px;
+}
+
+.enteteFormulaire p {
+  font-size: 14px;
+  color: #435066;
+  margin: 0 0 32px;
+  line-height: 1.5;
+}
+
+.erreur {
+  background: #fdecec;
+  color: #c0392b;
+  border: 1px solid #f3c9c9;
+  border-radius: 8px;
+  padding: 11px 14px;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+.champ {
+  margin-bottom: 20px;
+}
+
+.champ label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #29384d;
+  margin-bottom: 7px;
+}
+
+.champAvecIcone {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.iconeChamp {
+  position: absolute;
+  left: 14px;
+  color: #9aa8bc;
+  pointer-events: none;
+}
+
+.champAvecIcone input {
+  width: 100%;
+  padding: 12px 42px 12px 42px;
+  border: 1.5px solid #dde4ec;
+  border-radius: 9px;
+  font-size: 14.5px;
+  font-family: inherit;
+  color: #0a2540;
+  background: #ffffff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.champAvecIcone input:focus {
+  outline: none;
+  border-color: #2fb8d6;
+  box-shadow: 0 0 0 3px rgba(47, 184, 214, 0.15);
+}
+
+.boutonOeil {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: #9aa8bc;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.boutonOeil:hover {
+  color: #435066;
+}
+
+.boutonConnexion {
+  width: 100%;
+  background: linear-gradient(135deg, #0f4c81 0%, #1a6ba8 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 9px;
+  padding: 13px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: opacity 0.15s ease;
+}
+
+.boutonConnexion:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.boutonConnexion:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.boutonConnexion:focus-visible {
+  outline: 2px solid #0a2540;
+  outline-offset: 2px;
+}
+
+.pied {
+  text-align: center;
+  font-size: 12.5px;
+  color: #8592a3;
+  margin: 24px 0 0;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 900px) {
+  .page {
+    flex-direction: column;
+  }
+
+  .panneauMarque {
+    width: 100%;
+    min-width: 0;
+    padding: 32px 28px;
+    min-height: 200px;
+  }
+
+  .contenuMarque {
+    margin: 0;
+  }
+
+  .nomClinique {
+    font-size: 26px;
+  }
+
+  .confiance {
+    display: none;
+  }
+
+  .panneauFormulaire {
+    padding: 32px 24px 48px;
+  }
+}

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import { Eye, EyeOff, History } from "lucide-react";
 import { utilisateursService } from "../../services/utilisateursService";
+import ConfirmModal from "../../components/ConfirmModal";
 import styles from "../../theme/pages/personnel/FormulairePersonnel.module.css";
 
 const ROLES = [
@@ -24,8 +26,11 @@ export default function FormulairePersonnel() {
   const [chargement, setChargement] = useState(modeEdition);
   const [erreur, setErreur] = useState("");
 
+  const [motDePasseVisible, setMotDePasseVisible] = useState(false);
   const [nouveauMotDePasse, setNouveauMotDePasse] = useState("");
+  const [nouveauMotDePasseVisible, setNouveauMotDePasseVisible] = useState(false);
   const [messageMotDePasse, setMessageMotDePasse] = useState("");
+  const [confirmationDesactivation, setConfirmationDesactivation] = useState(false);
 
   useEffect(() => {
     if (!modeEdition) return;
@@ -68,9 +73,9 @@ export default function FormulairePersonnel() {
     setNouveauMotDePasse("");
   };
 
-  const desactiverCompte = async () => {
-    if (!window.confirm(`Désactiver le compte de ${valeurs.first_name} ${valeurs.last_name} ? Il ne pourra plus se connecter, mais son historique reste conservé.`)) return;
+  const confirmerDesactivation = async () => {
     await utilisateursService.desactiver(id);
+    setConfirmationDesactivation(false);
     navigate("/personnel");
   };
 
@@ -122,7 +127,23 @@ export default function FormulairePersonnel() {
           {!modeEdition && (
             <div className="champ-formulaire">
               <label>Mot de passe initial *</label>
-              <input type="password" {...champ("password")} minLength={8} required />
+              <div style={{ position: "relative" }}>
+                <input
+                  type={motDePasseVisible ? "text" : "password"}
+                  {...champ("password")}
+                  minLength={8}
+                  required
+                  style={{ paddingRight: 40, width: "100%" }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setMotDePasseVisible((v) => !v)}
+                  style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "transparent", border: "none", color: "var(--couleur-texte-attenue)", cursor: "pointer", padding: 4, display: "flex" }}
+                  aria-label={motDePasseVisible ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                >
+                  {motDePasseVisible ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
           )}
 
@@ -134,9 +155,16 @@ export default function FormulairePersonnel() {
           )}
         </div>
 
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 24 }}>
-          <button type="button" className="bouton-secondaire" onClick={() => navigate("/personnel")}>Annuler</button>
-          <button type="submit" className="bouton-primaire">Enregistrer</button>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 10, marginTop: 24 }}>
+          {modeEdition && (
+            <Link to={`/personnel/${id}/historique`} className="bouton-secondaire" style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none" }}>
+              <History size={16} /> Historique
+            </Link>
+          )}
+          <div style={{ display: "flex", gap: 10, marginLeft: "auto" }}>
+            <button type="button" className="bouton-secondaire" onClick={() => navigate("/personnel")}>Annuler</button>
+            <button type="submit" className="bouton-primaire">Enregistrer</button>
+          </div>
         </div>
       </form>
 
@@ -150,13 +178,23 @@ export default function FormulairePersonnel() {
               </p>
             )}
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <input
-                type="password"
-                placeholder="Nouveau mot de passe (8 caractères min.)"
-                value={nouveauMotDePasse}
-                onChange={(e) => setNouveauMotDePasse(e.target.value)}
-                style={{ flex: 1, minWidth: 220, border: "1px solid var(--couleur-bordure)", borderRadius: 8, padding: "10px 12px" }}
-              />
+              <div style={{ position: "relative", flex: 1, minWidth: 220 }}>
+                <input
+                  type={nouveauMotDePasseVisible ? "text" : "password"}
+                  placeholder="Nouveau mot de passe (8 caractères min.)"
+                  value={nouveauMotDePasse}
+                  onChange={(e) => setNouveauMotDePasse(e.target.value)}
+                  style={{ width: "100%", border: "1px solid var(--couleur-bordure)", borderRadius: 8, padding: "10px 40px 10px 12px" }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setNouveauMotDePasseVisible((v) => !v)}
+                  style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "transparent", border: "none", color: "var(--couleur-texte-attenue)", cursor: "pointer", padding: 4, display: "flex" }}
+                  aria-label={nouveauMotDePasseVisible ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                >
+                  {nouveauMotDePasseVisible ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
               <button type="button" onClick={reinitialiserMotDePasse} className="bouton-primaire">Réinitialiser</button>
             </div>
           </div>
@@ -166,10 +204,21 @@ export default function FormulairePersonnel() {
             <p style={{ fontSize: 13, marginBottom: 12 }}>
               Désactiver ce compte l'empêche de se connecter, mais conserve tout son historique (dossiers créés, factures, etc.).
             </p>
-            <button type="button" onClick={desactiverCompte} className="bouton-secondaire" style={{ color: "var(--couleur-danger)" }}>
+            <button type="button" onClick={() => setConfirmationDesactivation(true)} className="bouton-secondaire" style={{ color: "var(--couleur-danger)" }}>
               Désactiver ce compte
             </button>
           </div>
+
+          {confirmationDesactivation && (
+            <ConfirmModal
+              titre="Désactiver le compte"
+              message={`Désactiver le compte de ${valeurs.first_name} ${valeurs.last_name} ? Il ne pourra plus se connecter, mais son historique reste conservé.`}
+              texteConfirmation="Désactiver le compte"
+              dangereux
+              onConfirmer={confirmerDesactivation}
+              onAnnuler={() => setConfirmationDesactivation(false)}
+            />
+          )}
         </>
       )}
     </div>

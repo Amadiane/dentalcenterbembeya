@@ -12,4 +12,5 @@ export const utilisateursService = {
     api.post(`${CONFIG.BASE_URL}/api/utilisateurs/${id}/reinitialiser-mot-de-passe/`, {
       nouveau_mot_de_passe: nouveauMotDePasse,
     }),
+  historique: (id) => api.get(`${CONFIG.BASE_URL}/api/utilisateurs/${id}/historique/`),
 };
