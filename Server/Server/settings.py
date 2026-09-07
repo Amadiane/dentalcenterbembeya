@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "auditlog",
     "rendez_vous",
     "actes",
+    "facturation",
 ]
 
 from datetime import timedelta

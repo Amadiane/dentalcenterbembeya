@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { Download, Printer, Pencil, ArrowLeft, Archive, History, CalendarDays } from "lucide-react";
+import { Download, Printer, Pencil, ArrowLeft, Archive, History, CalendarDays, Receipt } from "lucide-react";
 import { patientsService } from "../../services/patientsService";
 import { rendezVousService } from "../../services/rendezVousService";
+import { facturationService } from "../../services/facturationService";
 import { useAuth } from "../../context/AuthContext";
 import styles from "../../theme/pages/patients/FichePatient.module.css";
 
@@ -16,6 +17,7 @@ export default function FichePatient() {
   const [telechargement, setTelechargement] = useState(false);
   const [impression, setImpression] = useState(false);
   const [rendezVous, setRendezVous] = useState([]);
+  const [factures, setFactures] = useState([]);
 
   useEffect(() => {
     patientsService.obtenir(id).then(({ data }) => setPatient(data));
@@ -24,6 +26,11 @@ export default function FichePatient() {
   useEffect(() => {
     rendezVousService.lister({ patient: id, inclure_annules: true })
       .then(({ data }) => setRendezVous(data.results || data));
+  }, [id]);
+
+  useEffect(() => {
+    facturationService.lister({ patient: id })
+      .then(({ data }) => setFactures(data.results || data));
   }, [id]);
 
   const telecharger = async () => {
@@ -67,6 +74,8 @@ export default function FichePatient() {
     </div>
   );
 
+  const formaterGNF = (montant) => new Intl.NumberFormat("fr-FR").format(montant) + " GNF";
+
   const aujourdHui = new Date().toISOString().slice(0, 10);
   const rdvAvenir = rendezVous
     .filter((r) => r.date >= aujourdHui && r.statut !== "annule")
@@ -105,6 +114,36 @@ export default function FichePatient() {
       {badgeRdv(rdv)}
     </div>
   );
+
+  const COULEURS_STATUT_FACTURE = {
+    impayee: { bg: "#fdecec", texte: "#d94f4f" },
+    partiellement_payee: { bg: "#fdf1de", texte: "#b5720f" },
+    payee: { bg: "#e7f5ea", texte: "#2e9e5b" },
+    annulee: { bg: "#eef0f2", texte: "#5b6b7c" },
+  };
+
+  const ligneFacture = (f) => {
+    const c = COULEURS_STATUT_FACTURE[f.statut] || COULEURS_STATUT_FACTURE.impayee;
+    return (
+      <Link
+        key={f.id}
+        to={`/facturation/${f.id}`}
+        style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid var(--couleur-bordure)", textDecoration: "none", color: "inherit" }}
+      >
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 600 }}>
+            {f.numero_facture} — {new Date(f.date_emission).toLocaleDateString("fr-FR")}
+          </div>
+          <div style={{ fontSize: 12, color: "var(--couleur-texte-attenue)" }}>
+            {formaterGNF(f.montant_total)}{f.montant_restant > 0 && f.statut !== "annulee" ? ` · reste ${formaterGNF(f.montant_restant)}` : ""}
+          </div>
+        </div>
+        <span style={{ background: c.bg, color: c.texte, fontSize: 11, fontWeight: 600, padding: "3px 9px", borderRadius: 20 }}>
+          {f.statut_affiche}
+        </span>
+      </Link>
+    );
+  };
 
   return (
     <div className="conteneur-page" style={{ maxWidth: 700 }}>
@@ -189,6 +228,20 @@ export default function FichePatient() {
             {rdvPasses.map(ligneRdv)}
           </>
         )}
+      </div>
+
+      <div className="carte-moderne" style={{ marginTop: 20 }}>
+        <div className={styles.sectionTitre} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <Receipt size={16} /> Factures ({factures.length})
+        </div>
+
+        {factures.length === 0 && (
+          <p style={{ color: "var(--couleur-texte-attenue)", fontSize: 13, padding: "10px 0" }}>
+            Aucune facture enregistrée pour ce patient.
+          </p>
+        )}
+
+        {factures.map(ligneFacture)}
       </div>
     </div>
   );

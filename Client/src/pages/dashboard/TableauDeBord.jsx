@@ -5,9 +5,10 @@ import { Users, CalendarCheck, TrendingUp, Wallet, Plus, CalendarPlus, ArrowUpRi
 import { useAuth } from "../../context/AuthContext";
 import { patientsService } from "../../services/patientsService";
 import { rendezVousService } from "../../services/rendezVousService";
+import { facturationService } from "../../services/facturationService";
 import styles from "../../theme/pages/dashboard/TableauDeBord.module.css";
 
-// Données encore fictives — nécessitent les modules Facturation / statistiques d'occupation
+// Donnée encore fictive — nécessite un endpoint de statistiques mensuelles dédié
 const EVOLUTION_MOCK = [
   { mois: "Avr", patients: 18 },
   { mois: "Mai", patients: 24 },
@@ -22,6 +23,7 @@ export default function TableauDeBord() {
   const [nombrePatients, setNombrePatients] = useState(null);
   const [rendezVousJour, setRendezVousJour] = useState([]);
   const [chargementRdv, setChargementRdv] = useState(true);
+  const [recettesDuMois, setRecettesDuMois] = useState(null);
 
   useEffect(() => {
     patientsService.lister({ page_size: 1 })
@@ -32,6 +34,21 @@ export default function TableauDeBord() {
       .then(({ data }) => setRendezVousJour(data.results || data))
       .catch(() => setRendezVousJour([]))
       .finally(() => setChargementRdv(false));
+
+    const debutMois = new Date();
+    debutMois.setDate(1);
+    facturationService.lister({})
+      .then(({ data }) => {
+        const factures = data.results || data;
+        const totalMoisCourant = factures
+          .filter((f) => {
+            const dateEmission = new Date(f.date_emission);
+            return f.statut !== "annulee" && dateEmission >= debutMois;
+          })
+          .reduce((somme, f) => somme + f.montant_total, 0);
+        setRecettesDuMois(totalMoisCourant);
+      })
+      .catch(() => setRecettesDuMois(null));
   }, []);
 
   const dateFormatee = new Date().toLocaleDateString("fr-FR", {
@@ -63,14 +80,13 @@ export default function TableauDeBord() {
           <div className={`${styles.tendance} ${styles.tendanceNeutre}`}>Donnée réelle</div>
         </div>
 
-        {/* Fictif — module Facturation pas encore développé */}
         <div className={styles.carteStat} style={{ "--couleur-icone-fond": "#e7f5ea", "--couleur-icone-texte": "#2e9e5b" }}>
           <div className={styles.iconeStat}><Wallet size={22} /></div>
-          <div className={styles.labelStat}>Recettes du mois</div>
-          <div className={styles.valeurStat}>2,4M GNF</div>
-          <div className={`${styles.tendance} ${styles.tendancePositive}`}>
-            <ArrowUpRight size={14} /> +12% (exemple)
+          <div className={styles.labelStat}>Facturé ce mois-ci</div>
+          <div className={styles.valeurStat}>
+            {recettesDuMois === null ? "—" : new Intl.NumberFormat("fr-FR").format(recettesDuMois) + " GNF"}
           </div>
+          <div className={`${styles.tendance} ${styles.tendanceNeutre}`}>Donnée réelle</div>
         </div>
 
         {/* Fictif — pas de statistiques d'occupation encore */}

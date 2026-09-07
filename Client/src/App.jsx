@@ -15,6 +15,9 @@ import VoirRendezVous from "./pages/rendezvous/VoirRendezVous";
 import HistoriqueRendezVous from "./pages/rendezvous/HistoriqueRendezVous";
 import CatalogueActes from "./pages/actes/CatalogueActes";
 import FormulaireActe from "./pages/actes/FormulaireActe";
+import ListeFactures from "./pages/facturation/ListeFactures";
+import FormulaireFacture from "./pages/facturation/FormulaireFacture";
+import DetailFacture from "./pages/facturation/DetailFacture";
 
 
 export default function App() {
@@ -46,6 +49,9 @@ export default function App() {
         <Route path="/actes" element={<CatalogueActes />} />
         <Route path="/actes/nouveau" element={<FormulaireActe />} />
         <Route path="/actes/:id/modifier" element={<FormulaireActe />} />
+        <Route path="/facturation" element={<ListeFactures />} />
+        <Route path="/facturation/nouvelle" element={<FormulaireFacture />} />
+        <Route path="/facturation/:id" element={<DetailFacture />} />
 
 
       </Route>

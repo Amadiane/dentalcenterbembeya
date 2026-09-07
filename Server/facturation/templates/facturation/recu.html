@@ -1,0 +1,127 @@
+{% load static %}
+<html>
+<head>
+<style>
+  @page {
+    size: A4;
+    margin: 2cm 1.8cm 2cm 1.8cm;
+    @frame footer_frame {
+      -pdf-frame-content: pied_de_page;
+      bottom: 1cm;
+      margin-left: 1.8cm;
+      margin-right: 1.8cm;
+      height: 1cm;
+    }
+  }
+
+  body { font-family: Helvetica, sans-serif; color: #1a2332; font-size: 11px; }
+
+  .entete { border-bottom: 3px solid #0f4c81; padding-bottom: 10px; margin-bottom: 18px; }
+  .entete table { width: 100%; }
+  .nom-clinique { color: #0f4c81; font-size: 20px; font-weight: bold; }
+  .slogan { color: #2fb8d6; font-size: 10px; font-style: italic; }
+  .numero-facture { text-align: right; font-size: 10px; color: #5b6b7c; }
+  .numero-facture .valeur { font-size: 15px; font-weight: bold; color: #0f4c81; }
+
+  .titre-recu { font-size: 16px; font-weight: bold; margin-bottom: 4px; }
+  .info-patient { font-size: 11px; color: #5b6b7c; margin-bottom: 18px; }
+
+  .section-titre {
+    background-color: #0f4c81; color: #ffffff; font-size: 11px; font-weight: bold;
+    padding: 6px 10px; margin-bottom: 2px; margin-top: 16px;
+  }
+
+  table.donnees { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+  table.donnees th {
+    text-align: left; padding: 7px 10px; font-size: 10px; text-transform: uppercase;
+    color: #5b6b7c; border-bottom: 1px solid #dfe8ef;
+  }
+  table.donnees td { padding: 7px 10px; border-bottom: 1px solid #dfe8ef; font-size: 11px; }
+
+  .resume { width: 100%; margin-top: 10px; }
+  .resume td { padding: 4px 10px; font-size: 12px; }
+  .resume .label { text-align: right; color: #5b6b7c; width: 80%; }
+  .resume .valeur { text-align: right; font-weight: bold; width: 20%; }
+  .resume .total td { font-size: 15px; color: #0f4c81; border-top: 1px solid #dfe8ef; padding-top: 8px; }
+  .resume .restant td { color: #d94f4f; font-size: 13px; }
+
+  .pied { font-size: 8px; color: #5b6b7c; text-align: center; border-top: 1px solid #dfe8ef; padding-top: 5px; }
+</style>
+</head>
+<body>
+
+  <div class="entete">
+    <table>
+      <tr>
+        <td style="width: 70px;">
+          <img src="{% static 'patients/logo-cabinet-bembeya.png' %}" width="60" height="65"/>
+        </td>
+        <td>
+          <div class="nom-clinique">Centre Dentaire Bembeya</div>
+          <div class="slogan">Le sourire, notre métier.</div>
+        </td>
+        <td class="numero-facture">
+          Reçu<br/>
+          <span class="valeur">{{ facture.numero_facture }}</span>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="titre-recu">{{ facture.patient.nom }} {{ facture.patient.prenom }}</div>
+  <div class="info-patient">
+    {{ facture.patient.numero_dossier }} — Émis le {{ facture.date_emission|date:"d/m/Y" }}
+  </div>
+
+  <div class="section-titre">ACTES FACTURÉS</div>
+  <table class="donnees">
+    <tr>
+      <th>Acte</th><th>Qté</th><th>Prix unitaire</th><th>Remise</th><th style="text-align:right;">Sous-total</th>
+    </tr>
+    {% for ligne in lignes %}
+    <tr>
+      <td>{{ ligne.nom_acte }}</td>
+      <td>{{ ligne.quantite }}</td>
+      <td>{{ ligne.prix_unitaire }} GNF</td>
+      <td>{% if ligne.remise_pourcentage %}-{{ ligne.remise_pourcentage }}%{% else %}—{% endif %}</td>
+      <td style="text-align:right;">{{ ligne.sous_total }} GNF</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <table class="resume">
+    {% if facture.remise_globale_pourcentage %}
+    <tr><td class="label">Sous-total</td><td class="valeur">{{ facture.montant_avant_remise_globale }} GNF</td></tr>
+    <tr><td class="label">Remise globale ({{ facture.remise_globale_pourcentage }}%)</td><td class="valeur">- {{ montant_remise_globale }} GNF</td></tr>
+    {% endif %}
+    <tr class="total"><td class="label">Total facturé</td><td class="valeur">{{ facture.montant_total }} GNF</td></tr>
+    <tr><td class="label">Total payé</td><td class="valeur">{{ facture.montant_paye }} GNF</td></tr>
+    {% if facture.montant_restant > 0 %}
+    <tr class="restant"><td class="label">Reste à payer</td><td class="valeur">{{ facture.montant_restant }} GNF</td></tr>
+    {% endif %}
+  </table>
+
+  {% if paiements %}
+  <div class="section-titre">PAIEMENTS</div>
+  <table class="donnees">
+    <tr>
+      <th>Date</th><th>Montant</th><th>Mode</th><th>Référence</th><th>Enregistré par</th>
+    </tr>
+    {% for p in paiements %}
+    <tr>
+      <td>{{ p.date_paiement|date:"d/m/Y" }}</td>
+      <td>{{ p.montant }} GNF</td>
+      <td>{{ p.get_mode_paiement_display }}</td>
+      <td>{{ p.reference|default:"—" }}</td>
+      <td>{{ p.enregistre_par.get_full_name|default:"—" }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+
+  <div id="pied_de_page" class="pied">
+    Centre Dentaire Bembeya — Document confidentiel généré le {% now "d/m/Y à H:i" %}
+  </div>
+
+</body>
+</html>

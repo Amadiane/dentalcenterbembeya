@@ -1,0 +1,148 @@
+.entete {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.numero {
+  font-size: 24px;
+  color: var(--couleur-primaire-fonce);
+  margin: 0;
+}
+
+.sousTitre {
+  color: var(--couleur-texte-attenue);
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+
+.badge {
+  display: inline-block;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.badgeImpayee { background: #fdecec; color: var(--couleur-danger); }
+.badgePartiellementPayee { background: #fdf1de; color: #b5720f; }
+.badgePayee { background: #e7f5ea; color: var(--couleur-succes); }
+.badgeAnnulee { background: #eef0f2; color: var(--couleur-texte-attenue); }
+
+.sectionTitre {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--couleur-primaire);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--couleur-bordure);
+}
+
+.tableauLignes {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+
+.tableauLignes th {
+  text-align: left;
+  padding: 8px 10px;
+  color: var(--couleur-texte-attenue);
+  font-size: 11px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--couleur-bordure);
+}
+
+.tableauLignes td {
+  padding: 10px;
+  border-bottom: 1px solid var(--couleur-bordure);
+}
+
+.resume {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+  padding-top: 12px;
+}
+
+.ligneResume {
+  display: flex;
+  justify-content: space-between;
+  width: 260px;
+  font-size: 13px;
+  color: var(--couleur-texte-attenue);
+}
+
+.ligneResumeTotal {
+  display: flex;
+  justify-content: space-between;
+  width: 260px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--couleur-primaire-fonce);
+  padding-top: 8px;
+  border-top: 1px solid var(--couleur-bordure);
+}
+
+.ligneResumeRestant {
+  display: flex;
+  justify-content: space-between;
+  width: 260px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--couleur-danger);
+}
+
+.listePaiements {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.itemPaiement {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--couleur-bordure);
+  font-size: 13px;
+}
+
+.itemPaiement:last-child { border-bottom: none; }
+
+.formPaiement {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--couleur-bordure);
+}
+
+.tableauPaiements {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.tableauPaiements th {
+  text-align: left;
+  padding: 8px 12px;
+  color: var(--couleur-texte-attenue);
+  font-size: 11px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--couleur-bordure);
+}
+
+.tableauPaiements td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--couleur-bordure);
+}

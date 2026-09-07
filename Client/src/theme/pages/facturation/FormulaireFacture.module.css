@@ -1,0 +1,121 @@
+.titre {
+  font-size: 24px;
+  color: var(--couleur-primaire-fonce);
+  margin-bottom: 24px;
+}
+
+.rechercheZone {
+  position: relative;
+}
+
+.resultatsRecherche {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--couleur-surface);
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(15, 76, 129, 0.1);
+  z-index: 10;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.resultatItem {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  border-bottom: 1px solid var(--couleur-bordure);
+}
+
+.resultatItem:hover {
+  background: var(--couleur-fond);
+}
+
+.patientChoisi {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--couleur-fond);
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+}
+
+.tableauLignes {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+.tableauLignes th {
+  text-align: left;
+  padding: 8px 10px;
+  color: var(--couleur-texte-attenue);
+  font-size: 11px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--couleur-bordure);
+}
+
+.tableauLignes td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--couleur-bordure);
+  vertical-align: middle;
+}
+
+.tableauLignes select,
+.tableauLignes input {
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 13px;
+  font-family: inherit;
+  width: 100%;
+}
+
+.boutonSupprimerLigne {
+  background: transparent;
+  border: none;
+  color: var(--couleur-danger);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.resume {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--couleur-bordure);
+}
+
+.ligneResume {
+  display: flex;
+  justify-content: space-between;
+  width: 260px;
+  font-size: 13px;
+  color: var(--couleur-texte-attenue);
+}
+
+.ligneResumeTotal {
+  display: flex;
+  justify-content: space-between;
+  width: 260px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--couleur-primaire-fonce);
+  padding-top: 6px;
+  border-top: 1px solid var(--couleur-bordure);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
