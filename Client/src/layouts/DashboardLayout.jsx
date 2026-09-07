@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import { LayoutDashboard, Users, LogOut, Menu, X, CalendarDays, ClipboardList, Receipt } from "lucide-react";
+import { LayoutDashboard, Users, LogOut, Menu, X, CalendarDays, ClipboardList, Receipt, UserCog } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import styles from "../theme/components/DashboardLayout.module.css";
 
@@ -34,6 +34,11 @@ export default function DashboardLayout() {
           <NavLink to="/facturation" onClick={() => setMenuOuvert(false)} className={({ isActive }) => `${styles.lien} ${isActive ? styles.lienActif : ""}`}>
             <Receipt size={18} /> Facturation
           </NavLink>
+          {utilisateur?.role === "administrateur_general" && (
+            <NavLink to="/personnel" onClick={() => setMenuOuvert(false)} className={({ isActive }) => `${styles.lien} ${isActive ? styles.lienActif : ""}`}>
+              <UserCog size={18} /> Personnel
+            </NavLink>
+          )}
         </nav>
 
         <div className={styles.pied}>

@@ -41,3 +41,11 @@ class EstAdministrateurGeneral(BasePermission):
             and request.user.is_authenticated
             and request.user.role == Utilisateur.Role.ADMINISTRATEUR_GENERAL
         )
+
+from rest_framework.permissions import BasePermission
+from .models import Utilisateur
+
+
+class EstAdministrateurGeneral(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.role == Utilisateur.Role.ADMINISTRATEUR_GENERAL
