@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 from decouple import config
+import dj_database_url
 # import cloudinary
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -147,24 +148,23 @@ WSGI_APPLICATION = 'Server.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
-DATABASE_URL = os.environ.get("DATABASE_URL")
+DATABASE_URL = config("DATABASE_URL", default="")
 
 if DATABASE_URL:
     DATABASES = {
-        'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
+        "default": dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
     }
 else:
     DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("DB_NAME"),
-        "USER": config("DB_USER"),
-        "PASSWORD": config("DB_PASSWORD"),
-        "HOST": config("DB_HOST", default="127.0.0.1"),
-        "PORT": config("DB_PORT", default="5432"),
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": config("DB_NAME", default="centre_dentaire_bembeya"),
+            "USER": config("DB_USER", default="postgres"),
+            "PASSWORD": config("DB_PASSWORD", default="postgres"),
+            "HOST": config("DB_HOST", default="127.0.0.1"),
+            "PORT": config("DB_PORT", default="5432"),
+        }
     }
-}
-
 
 
 # Password validation
