@@ -5,6 +5,7 @@ import { patientsService } from "../../services/patientsService";
 import { rendezVousService } from "../../services/rendezVousService";
 import { facturationService } from "../../services/facturationService";
 import { useAuth } from "../../context/AuthContext";
+import SectionRadiographies from "../../components/SectionRadiographies";
 import styles from "../../theme/pages/patients/FichePatient.module.css";
 
 export default function FichePatient() {
@@ -243,6 +244,8 @@ export default function FichePatient() {
 
         {factures.map(ligneFacture)}
       </div>
+
+      <SectionRadiographies patientId={id} />
     </div>
   );
 }

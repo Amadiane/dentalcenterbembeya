@@ -1,0 +1,119 @@
+.grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.vignette {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--couleur-bordure);
+  cursor: pointer;
+  background: #000;
+  aspect-ratio: 1;
+}
+
+.vignette img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.15s ease;
+}
+
+.vignette:hover img {
+  transform: scale(1.04);
+}
+
+.badgeType {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.75), transparent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 16px 8px 6px;
+}
+
+.zoneUpload {
+  border: 2px dashed var(--couleur-bordure);
+  border-radius: 10px;
+  padding: 24px;
+  text-align: center;
+  color: var(--couleur-texte-attenue);
+  cursor: pointer;
+  margin-top: 14px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.zoneUpload:hover {
+  border-color: var(--couleur-accent);
+  background: var(--couleur-fond);
+}
+
+.formulaireUpload {
+  margin-top: 14px;
+  padding: 16px;
+  background: var(--couleur-fond);
+  border-radius: 10px;
+}
+
+.grille2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 14px;
+}
+
+/* Visionneuse plein écran */
+.visionneuse {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 20, 30, 0.92);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.visionneuseImage {
+  max-width: 92vw;
+  max-height: 78vh;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.visionneuseInfos {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 13px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.visionneuseFermer {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  background: rgba(255,255,255,0.12);
+  border: none;
+  color: #fff;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}

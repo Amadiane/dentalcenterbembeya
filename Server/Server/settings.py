@@ -14,7 +14,7 @@ from pathlib import Path
 import os
 from decouple import config
 import dj_database_url
-# import cloudinary
+import cloudinary
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,21 +43,24 @@ if RENDER_EXTERNAL_HOSTNAME:
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'rest_framework',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "rest_framework",
     "rest_framework_simplejwt",
-    'corsheaders',
+    "corsheaders",
+    "cloudinary_storage",
+    "cloudinary",
+    "auditlog",
     "utilisateurs",
     "patients",
-    "auditlog",
     "rendez_vous",
     "actes",
     "facturation",
+    "radiographie",
 ]
 
 from datetime import timedelta
@@ -99,18 +102,10 @@ STATIC_URL = "static/"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-STORAGES = {
-    "default": {"BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"},
-    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
-}
 
 CORS_ALLOW_CREDENTIALS = True   # ← OBLIGATOIRE
 CORS_ALLOW_ALL_ORIGINS = False  # ← PAS DE TRUE ici sinon erreur
-# Autoriser le frontend React (dev) à appeler l'API
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:5173",   # port par défaut de Vite
-#     "http://127.0.0.1:5173",
-# ]
+
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
@@ -138,16 +133,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Server.wsgi.application'
 
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME", default=""),
+    "API_KEY": config("CLOUDINARY_API_KEY", default=""),
+    "API_SECRET": config("CLOUDINARY_API_SECRET", default=""),
+}
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+import cloudinary
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+cloudinary.config(
+    cloud_name=CLOUDINARY_STORAGE["CLOUD_NAME"],
+    api_key=CLOUDINARY_STORAGE["API_KEY"],
+    api_secret=CLOUDINARY_STORAGE["API_SECRET"],
+    secure=True,
+)
+
+STORAGES = {
+    "default": {"BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+}
+
+
+
 DATABASE_URL = config("DATABASE_URL", default="")
 
 if DATABASE_URL:
@@ -185,12 +192,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# CloudinarySection
-# cloudinary.config(
-#     cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
-#     api_key=os.getenv('CLOUDINARY_API_KEY'),
-#     api_secret=os.getenv('CLOUDINARY_API_SECRET')
-# )
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 

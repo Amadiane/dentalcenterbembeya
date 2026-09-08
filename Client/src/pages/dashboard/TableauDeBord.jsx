@@ -51,17 +51,8 @@ export default function TableauDeBord() {
       .catch(() => setRecettesDuMois(null));
   }, []);
 
-  const dateFormatee = new Date().toLocaleDateString("fr-FR", {
-    weekday: "long", day: "numeric", month: "long", year: "numeric",
-  });
-
   return (
     <div className="conteneur-page" style={{ maxWidth: 1100 }}>
-      <div className={styles.entete}>
-        <h1 className={styles.salutation}>Bonjour {utilisateur?.first_name || utilisateur?.username} 👋</h1>
-        <p className={styles.dateJour}>{dateFormatee}</p>
-      </div>
-
       {/* --- Statistiques clés --- */}
       <div className={styles.grilleStats}>
         <div className={styles.carteStat} style={{ "--couleur-icone-fond": "#e5eef7", "--couleur-icone-texte": "#0f4c81" }}>

@@ -1,0 +1,190 @@
+.entete {
+  position: relative;
+  background: linear-gradient(120deg, #0a2540 0%, #0f4c81 55%, #1a6ba8 100%);
+  color: #ffffff;
+  padding: 22px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.motif {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.gauche {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.boutonHamburger {
+  display: none;
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.texteBienvenue h1 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 2px;
+  color: #ffffff;
+}
+
+.texteBienvenue p {
+  font-size: 13px;
+  color: #a9d3e8;
+  margin: 0;
+}
+
+.droite {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.badgeDate {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.boutonCloche {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.zoneProfil {
+  position: relative;
+}
+
+.boutonProfil {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 24px;
+  padding: 5px 14px 5px 5px;
+  cursor: pointer;
+  color: #ffffff;
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2fb8d6, #1a6ba8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.nomProfil {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.menuDeroulant {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(10, 37, 64, 0.2);
+  min-width: 190px;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.infosMenu {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--couleur-bordure);
+}
+
+.infosMenu .nom {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--couleur-primaire-fonce);
+}
+
+.infosMenu .role {
+  font-size: 12px;
+  color: var(--couleur-texte-attenue);
+}
+
+.itemMenu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 11px 14px;
+  font-size: 13px;
+  color: var(--couleur-danger);
+  cursor: pointer;
+}
+
+.itemMenu:hover {
+  background: var(--couleur-fond);
+}
+
+@media (max-width: 900px) {
+  .entete {
+    padding: 14px 16px;
+  }
+
+  .boutonHamburger {
+    display: flex;
+  }
+
+  .texteBienvenue h1 {
+    font-size: 16px;
+  }
+
+  .texteBienvenue p {
+    display: none;
+  }
+
+  .badgeDate {
+    display: none;
+  }
+
+  .nomProfil {
+    display: none;
+  }
+}

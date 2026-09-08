@@ -1,7 +1,7 @@
 export default function ConfirmModal({ titre, message, texteConfirmation = "Confirmer", dangereux = false, onConfirmer, onAnnuler }) {
   return (
     <div
-      style={{ position: "fixed", inset: 0, background: "rgba(10, 20, 30, 0.5)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
+      style={{ position: "fixed", inset: 0, background: "rgba(10, 20, 30, 0.5)", zIndex: 300, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
       onClick={onAnnuler}
     >
       <div
