@@ -26,6 +26,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("utilisateur");
     setUtilisateur(null);
   }, []);
+  
 
   // Déconnexion automatique après une période d'inactivité (sécurité des données patients)
   useEffect(() => {
