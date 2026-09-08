@@ -8,8 +8,15 @@
   justify-content: space-between;
   gap: 20px;
   flex-wrap: wrap;
-  overflow: hidden;
   flex-shrink: 0;
+}
+
+.motifWrapper {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .motif {
@@ -18,7 +25,6 @@
   right: 0;
   height: 100%;
   opacity: 0.5;
-  pointer-events: none;
 }
 
 .gauche {
@@ -123,26 +129,27 @@
   right: 0;
   background: #ffffff;
   border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(10, 37, 64, 0.2);
+  box-shadow: 0 10px 30px rgba(10, 37, 64, 0.25);
   min-width: 190px;
   overflow: hidden;
-  z-index: 10;
+  z-index: 500;
 }
 
 .infosMenu {
   padding: 12px 14px;
-  border-bottom: 1px solid var(--couleur-bordure);
+  border-bottom: 1px solid #dfe8ef;
+  background: #ffffff;
 }
 
 .infosMenu .nom {
   font-size: 13px;
   font-weight: 700;
-  color: var(--couleur-primaire-fonce);
+  color: #0a2540;
 }
 
 .infosMenu .role {
   font-size: 12px;
-  color: var(--couleur-texte-attenue);
+  color: #5b6b7c;
 }
 
 .itemMenu {
@@ -150,17 +157,17 @@
   align-items: center;
   gap: 8px;
   width: 100%;
-  background: transparent;
+  background: #ffffff;
   border: none;
   text-align: left;
   padding: 11px 14px;
   font-size: 13px;
-  color: var(--couleur-danger);
+  color: #d94f4f;
   cursor: pointer;
 }
 
 .itemMenu:hover {
-  background: var(--couleur-fond);
+  background: #f5f9fb;
 }
 
 @media (max-width: 900px) {
