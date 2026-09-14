@@ -22,6 +22,7 @@ import HistoriqueFacture from "./pages/facturation/HistoriqueFacture";
 import ListePersonnel from "./pages/personnel/ListePersonnel";
 import FormulairePersonnel from "./pages/personnel/FormulairePersonnel";
 import HistoriquePersonnel from "./pages/personnel/HistoriquePersonnel";
+import Comptabilite from "./pages/comptabilite/Comptabilite";
 
 
 
@@ -64,6 +65,8 @@ export default function App() {
         <Route path="/personnel/nouveau" element={<FormulairePersonnel />} />
         <Route path="/personnel/:id/modifier" element={<FormulairePersonnel />} />
         <Route path="/personnel/:id/historique" element={<HistoriquePersonnel />} />
+
+        <Route path="/comptabilite" element={<Comptabilite />} />
 
 
       </Route>

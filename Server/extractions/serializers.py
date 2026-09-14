@@ -9,7 +9,7 @@ class ExtractionSerializer(serializers.ModelSerializer):
     praticien_nom = serializers.CharField(source="praticien.get_full_name", read_only=True)
     type_extraction_affiche = serializers.CharField(source="get_type_extraction_display", read_only=True)
     statut_affiche = serializers.CharField(source="get_statut_display", read_only=True)
-    plan_traitement_numero = serializers.CharField(source="plan_traitement.numero_plan", read_only=True, default="")
+    plan_traitement_numero = serializers.SerializerMethodField()
 
     class Meta:
         model = Extraction
@@ -22,3 +22,8 @@ class ExtractionSerializer(serializers.ModelSerializer):
             "date_creation", "date_modification",
         ]
         read_only_fields = ["id", "numero_extraction", "date_creation", "date_modification"]
+
+    def get_plan_traitement_numero(self, obj):
+        if obj.plan_traitement:
+            return obj.plan_traitement.numero_plan
+        return ""
