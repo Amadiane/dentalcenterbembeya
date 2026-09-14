@@ -1,0 +1,70 @@
+.enteteExtraction {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--couleur-bordure);
+  cursor: pointer;
+}
+
+.enteteExtraction:last-child {
+  border-bottom: none;
+}
+
+.numero {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--couleur-primaire);
+}
+
+.sousInfo {
+  font-size: 12px;
+  color: var(--couleur-texte-attenue);
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badgePlanifiee { background: #e5eef7; color: var(--couleur-primaire); }
+.badgeRealisee { background: #e7f5ea; color: var(--couleur-succes); }
+.badgeAnnulee { background: #fdecec; color: var(--couleur-danger); }
+
+.grille2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 14px;
+}
+
+.detail {
+  padding: 14px 0;
+}
+
+.ligneDetail {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--couleur-bordure);
+}
+
+.ligneDetail:last-child {
+  border-bottom: none;
+}
+
+.labelDetail {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--couleur-texte-attenue);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.caseConsentement {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  margin-bottom: 10px;
+}

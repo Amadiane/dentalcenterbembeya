@@ -1,0 +1,92 @@
+.entetePlan {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--couleur-bordure);
+  cursor: pointer;
+}
+
+.entetePlan:last-child {
+  border-bottom: none;
+}
+
+.numeroPlan {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--couleur-primaire);
+}
+
+.datePlan {
+  font-size: 12px;
+  color: var(--couleur-texte-attenue);
+}
+
+.barreProgression {
+  width: 100px;
+  height: 6px;
+  background: var(--couleur-bordure);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.barreProgressionRemplie {
+  height: 100%;
+  background: var(--couleur-accent);
+  border-radius: 3px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badgeEnCours { background: #dcf5f5; color: var(--couleur-accent-fonce); }
+.badgeTermine { background: #e7f5ea; color: var(--couleur-succes); }
+.badgeAbandonne { background: #eef0f2; color: var(--couleur-texte-attenue); }
+
+.grille2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 14px;
+}
+
+.tableauLignes {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin: 14px 0;
+}
+
+.tableauLignes th {
+  text-align: left;
+  padding: 8px 10px;
+  color: var(--couleur-texte-attenue);
+  font-size: 11px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--couleur-bordure);
+}
+
+.tableauLignes td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--couleur-bordure);
+  vertical-align: middle;
+}
+
+.tableauLignes select,
+.tableauLignes input[type="text"] {
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 13px;
+  width: 100%;
+}
+
+.ligneRealisee {
+  text-decoration: line-through;
+  color: var(--couleur-texte-attenue);
+}
